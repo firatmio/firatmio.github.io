@@ -1,232 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fırat | AI Engineer & Developer</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <title>Fırat Tuna Arslan | AI Mühendisi & Geliştirici</title>
+    <link rel="stylesheet" href="css/portfolio.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="./public/favicon.ico">
 </head>
-<body class="light-theme">
-    <div class="noise"></div>
-    <div class="cursor-follower"></div>
-    
-    <header>
+<body class="theme-dark">
+    <div class="background-gradient"></div>
+    <header class="main-header">
         <div class="container">
             <div class="logo">F<span class="accent">.</span></div>
             <nav>
-                <ul class="nav-links">
-                    <li><a href="#home" class="nav-link active">Home</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                <ul>
+                    <li><a href="#home" class="active">Ana Sayfa</a></li>
+                    <li><a href="#about">Hakkımda</a></li>
+                    <li><a href="#projects">Projeler</a></li>
+                    <li><a href="#contact">İletişim</a></li>
                 </ul>
-                <button id="theme-toggle" aria-label="Toggle dark mode">
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-sun"></i>
-                </button>
+                <button id="theme-toggle" aria-label="Tema değiştir"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button>
             </nav>
-            <button class="mobile-nav-toggle" aria-controls="primary-navigation" aria-expanded="false">
-                <span class="sr-only">Menu</span>
-                <div class="hamburger"></div>
-            </button>
         </div>
     </header>
-
     <main>
         <section id="home" class="hero">
             <div class="container">
                 <div class="hero-content">
-                    <h1 class="fade-in">
-                        <span class="greeting">Merhaba, I'm</span>
-                        <span class="name">Fırat<span class="accent">.</span></span>
-                    </h1>
-                    <p class="job-title fade-in delay-1">Artificial Intelligence Engineering Student</p>
-                    <p class="intro fade-in delay-2">Building intelligent systems with <span class="accent">8+ years</span> of software development experience.</p>
-                    <div class="cta-container fade-in delay-3">
-                        <a href="#contact" class="btn btn-primary">Get in touch</a>
-                        <a href="#about" class="btn btn-secondary">Learn more</a>
-                    </div>
-                    <div class="tech-stack fade-in delay-4">
-                        <div class="tech-label">Tech Stack</div>
+                    <h1>Ben Fırat Tuna Arslan</h1>
+                    <p class="subtitle">Yapay Zeka Mühendisliği öğrencisi & 8 yıllık yazılım geliştirici</p>
+                    <p class="intro">Kod yazmaya sadece bir meslek olarak değil, bir yaşam biçimi olarak yaklaşıyorum. Web teknolojileri, kullanıcı deneyimi ve gerçek zamanlı sistemler üzerine yoğunlaşıyorum.</p>
+                    <div class="tech-stack">
+                        <span>Kullandığım teknolojiler:</span>
                         <div class="tech-icons">
-                            <i class="fab fa-react" title="React"></i>
-                            <i class="fab fa-js" title="JavaScript"></i>
-                            <i class="fab fa-python" title="Python"></i>
-                            <i class="fab fa-html5" title="HTML5"></i>
-                            <i class="fab fa-css3-alt" title="CSS3"></i>
+                            <a href="https://react.dev/" target="_blank"><i class="fab fa-react" title="React"></i></a>
+                            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank"><i class="fab fa-js" title="JavaScript"></i></a>
+                            <a href="https://www.python.org/" target="_blank"><i class="fab fa-python" title="Python"></i></a>
+                            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank"><i class="fab fa-html5" title="HTML5"></i></a>
+                            <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank"><i class="fab fa-css3-alt" title="CSS3"></i></a>
+                            <a href="https://sass-lang.com/" target="_blank"><i class="fab fa-sass" title="Sass"></i></a>
+                            <a href="https://nodejs.org/" target="_blank"><i class="fab fa-node" title="Node.js"></i></a>
+                            <a href="https://www.docker.com/" target="_blank"><i class="fab fa-docker" title="Docker"></i></a>
+                            <a href="https://www.figma.com/" target="_blank"><i class="fab fa-figma" title="Figma"></i></a>
                         </div>
                     </div>
                 </div>
-                <div class="hero-visual fade-in delay-2">
-                    <div class="shape-1"></div>
-                    <div class="shape-2"></div>
-                    <div class="shape-3"></div>
-                </div>
             </div>
         </section>
-
         <section id="about" class="about">
             <div class="container">
-                <div class="section-header">
-                    <span class="section-subtitle">About me</span>
-                    <h2 class="section-title">Developer with a product-first mindset</h2>
-                </div>
-                <div class="about-content">
-                    <div class="about-text">
-                        <p>Based in Trabzon, Türkiye, I'm an AI Engineering student with over 8 years of software development experience across multiple domains.</p>
-                        <p>My technical journey spans web development, desktop applications, artificial intelligence, VR, and real-time systems.</p>
-                        <p>Beyond writing code, I focus on building complete products and systems with attention to user experience, system design, and sustainable development practices.</p>
-                        
-                        <div class="expertise-grid">
-                            <div class="expertise-card">
-                                <div class="expertise-icon"><i class="fas fa-code"></i></div>
-                                <h3>Development</h3>
-                                <p>React, Electron.js, Python, JavaScript, TypeScript, Firebase</p>
-                            </div>
-                            <div class="expertise-card">
-                                <div style="width: 45px; height: 45px; display: flex; justify-content: center; align-items: center; align-content: center;" class="expertise-icon"><i class="fas fa-brain"></i></div>
-                                <h3>AI & Systems</h3>
-                                <p>Machine Learning, Real-time Systems, VR Applications</p>
-                            </div>
-                            <div class="expertise-card">
-                                <div class="expertise-icon"><i class="fas fa-paint-brush"></i></div>
-                                <h3>UX Design</h3>
-                                <p>Clean interfaces with subtle animations and thoughtful interactions</p>
-                            </div>
-                        </div>
+                <h2>Hakkımda</h2>
+                <p>Ben Fırat Tuna Arslan. 8 yıldır yazılım geliştiren, şu anda Yapay Zekâ Mühendisliği okuyan ve üretmeden duramayan bir geliştiriciyim. Trabzonluyum; doğduğum şehir gibi sert, net ve kararlıyım. Kod yazmak benim için sadece bir iş değil, düşünme şekli. Sıfırdan sistem kurmayı, fikirleri ürüne dönüştürmeyi, detaylara takılmayı severim.</p>
+                <p>Geliştirme süreçlerinde full-stack çalışırım. Hem frontend’te hem backend’te elim güçlü. React, Next.js, Electron, FastAPI, Firebase, PocketBase gibi modern teknolojilerle sağlam projeler geliştiriyorum. UI/UX’e ayrı önem veririm; çünkü bir yazılım sadece çalışmakla değil, hissettirdikleriyle de anlam kazanır.</p>
+                <p>Şu anda aktif olarak üzerinde çalıştığım projelerden bazıları:</p>
+                <ul>
+                    <li><strong>DeepDev</strong> &rarr; Yapay zekâ destekli, kodun ne işe yaradığını anlayabilen gelişmiş bir kod editörü.</li>
+                    <li><strong>Wobble</strong> &rarr; Discord’a alternatif, sade ve etkili bir topluluk iletişim platformu.</li>
+                    <li><strong>VR Rehabilitasyon Oyunu</strong> &rarr; Felçli hastalar için geliştirilen ve el kaslarını çalıştırmaya yönelik bir oyun (Meta Quest 3 ile).</li>
+                    <li><strong>Film Keşif Uygulaması</strong> &rarr; Kullanıcılara detaylı şekilde film, oyuncu ve platform önerileri sunan keşif sitesi.</li>
+                </ul>
+                <p>Sadece teknik konularda değil, aynı zamanda kullanıcı deneyimi, sistem güvenliği, performans optimizasyonu ve sürdürülebilir yazılım mimarileri konusunda da hassasım. Yazılımın “sadece çalışması” yetmez; ölçeklenebilir, anlaşılır ve geliştirilebilir olması gerekir.</p>
+                <p>Boş zamanlarımda Warzone, CS2, Assassin’s Creed serisi gibi oyunlarla ilgilenirim ve düzenli olarak vücut geliştirme yaparım. Disiplini sadece kodda değil, hayatın her alanında önemserim.</p>
+                <p>Yeni şeyler öğrenmeyi, üretmeyi ve sınırları zorlamayı seviyorum. Karmaşık sorunlar, benim için motivasyon kaynağıdır. Zor işler beni yormaz, heyecanlandırır.</p>
+                <blockquote>Kod sadece yazılmaz, tasarlanır ve hissedilir. Ben de bu yaklaşımla her satırı bir anlam taşıyan projeler geliştiriyorum.</blockquote>
+            </div>
+        </section>
+        <section id="projects" class="projects">
+            <div class="container">
+                <h2>Projeler</h2>
+                <div class="project-list">
+                    <div class="project-card" data-project="deepdev">
+                        <h3>DeepDev</h3>
+                        <p>Yapay zeka destekli kod editörü.</p>
+                        <span class="project-tech">React.js, Electron.js, FastAPI</span>
                     </div>
-                    <div class="personal-details">
-                        <h3 class="gradient-text">When I'm not coding</h3>
-                        <div class="interests-modern">
-                            <div class="interest-card" data-icon="dumbbell">
-                                <div class="interest-icon-wrapper">
-                                    <i class="fas fa-dumbbell"></i>
-                                </div>
-                                <div class="interest-content">
-                                    <h4>Weightlifting</h4>
-                                    <p>Building strength & discipline</p>
-                                </div>
-                            </div>
-                            <div class="interest-card" data-icon="gamepad">
-                                <div class="interest-icon-wrapper">
-                                    <i class="fas fa-gamepad"></i>
-                                </div>
-                                <div class="interest-content">
-                                    <h4>Gaming</h4>
-                                    <p>Strategic gameplay & adventures</p>
-                                </div>
-                            </div>
-                            <div class="interest-card" data-icon="crosshairs">
-                                <div class="interest-icon-wrapper">
-                                    <i class="fas fa-crosshairs"></i>
-                                </div>
-                                <div class="interest-content">
-                                    <h4>FPS Games</h4>
-                                    <p>Warzone & CS2 enthusiast</p>
-                                </div>
-                            </div>
-                            <div class="interest-card" data-icon="mask">
-                                <div class="interest-icon-wrapper">
-                                    <i class="fas fa-mask"></i>
-                                </div>
-                                <div class="interest-content">
-                                    <h4>Assassin's Creed</h4>
-                                    <p>Historical adventures</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="project-card" data-project="rehabilitasyon">
+                        <h3>VR Rehabilitasyon Oyunu</h3>
+                        <p>Gerçek zamanlı etkileşim ve sağlık teknolojileri.</p>
+                        <span class="project-tech">Unity, Next.js, Firebase</span>
+                    </div>
+                    <div class="project-card" data-project="wobble">
+                        <h3>Wobble</h3>
+                        <p>Discord alternatifi, modern mesajlaşma sistemi.</p>
+                        <span class="project-tech">Next.js, Go, PocketBase</span>
+                    </div>
+                    <div class="project-card" data-project="film-platform">
+                        <h3>Film Keşif Platformu</h3>
+                        <p>Yapay zeka ile film önerileri ve keşif.</p>
+                        <span class="project-tech">Next.js, FastAPI</span>
                     </div>
                 </div>
             </div>
         </section>
-
         <section id="contact" class="contact">
             <div class="container">
-                <div class="section-header">
-                    <span class="section-subtitle">Contact</span>
-                    <h2 class="section-title">Let's work together</h2>
-                </div>
-                <div class="contact-content">
-                    <div class="contact-info">
-                        <p>Interested in collaborating or want to discuss potential opportunities?</p>
-                        <p>Feel free to reach out via email or through social media.</p>
-                        
-                        <div class="contact-links">
-                            <a href="mailto:firattunaarslan@gmail.com" class="contact-link">
-                                <i class="fas fa-envelope"></i>
-                                <span>firattunaarslan@gmail.com</span>
-                            </a>
-                            <a href="https://github.com/e500ky" target="_blank" rel="noopener" class="contact-link">
-                                <i class="fab fa-github"></i>
-                                <span>GitHub</span>
-                            </a>
-                            <a href="https://www.linkedin.com/in/f%C4%B1rat-tuna-arslan-32537b332/" target="_blank" rel="noopener" class="contact-link">
-                                <i class="fab fa-linkedin"></i>
-                                <span>LinkedIn</span>
-                            </a>
-                            <a href="https://twitter.com/arstechai" target="_blank" rel="noopener" class="contact-link">
-                                <i class="fab fa-twitter"></i>
-                                <span>Twitter</span>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <form class="contact-form" id="contact-form">
-                        <div class="input-group">
-                            <input type="text" id="name" name="name" required placeholder=" ">
-                            <label for="name">Name</label>
-                        </div>
-                        <div class="input-group">
-                            <input type="email" id="email" name="email" required placeholder=" ">
-                            <label for="email">Email</label>
-                        </div>
-                        <div class="input-group">
-                            <textarea id="message" name="message" required placeholder=" " rows="5"></textarea>
-                            <label for="message">Message</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary submit-btn">
-                            <span class="btn-text">Send Message</span>
-                            <span class="btn-loading"><i class="fas fa-spinner fa-spin"></i></span>
-                        </button>
-                        <div class="form-status">
-                            <p class="success-message"><i class="fas fa-check-circle"></i> Your message has been sent successfully!</p>
-                            <p class="error-message"><i class="fas fa-exclamation-circle"></i> Oops! Something went wrong.</p>
-                        </div>
-                    </form>
+                <h2>İletişim</h2>
+                <p>Birlikte çalışmak veya projeler hakkında konuşmak ister misin? Bana ulaşabilirsin:</p>
+                <div class="contact-links">
+                    <a href="mailto:firattunaarslan@gmail.com"><i class="fas fa-envelope"></i> firattunaarslan@gmail.com</a>
+                    <a href="https://github.com/e500ky" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://www.linkedin.com/in/f%C4%B1rat-tuna-arslan-32537b332/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="https://twitter.com/arstechai" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
                 </div>
             </div>
         </section>
     </main>
-
     <footer>
         <div class="container">
-            <div class="signature">
-                <svg xmlns="http://www.w3.org/2000/svg" class="signature-path" version="1.0" width="100.000000pt" height="100.000000pt" viewBox="0 0 500.000000 500.000000" preserveAspectRatio="xMidYMid meet">
-
-                    <g transform="translate(0.000000,500.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none" id="signature-path">
-                    <path d="M4355 3775 c-70 -13 -120 -27 -660 -189 -662 -199 -919 -294 -1415 -524 -1094 -508 -1859 -905 -1914 -994 -17 -28 22 -59 85 -69 55 -9 150 -3 499 31 351 33 956 110 1505 190 71 10 131 18 132 17 1 -1 -77 -83 -173 -181 -96 -99 -174 -185 -174 -192 0 -30 24 -23 73 22 29 26 129 121 224 211 133 126 178 163 199 163 l26 0 -19 -32 c-124 -211 -174 -324 -160 -361 20 -52 252 30 440 156 53 36 67 42 67 28 0 -23 31 -51 57 -51 25 0 116 63 206 142 52 47 67 56 67 41 0 -11 6 -28 14 -39 14 -19 15 -18 62 4 58 29 160 106 174 133 6 11 8 25 5 32 -4 6 6 -3 22 -21 18 -20 37 -32 53 -32 24 0 95 37 235 124 68 41 176 78 381 129 156 39 217 64 222 89 2 9 -5 21 -16 27 -20 11 -41 6 -289 -68 -56 -16 -135 -37 -175 -45 -101 -21 -592 -104 -713 -120 -55 -8 -194 -28 -310 -45 -115 -18 -217 -31 -227 -29 -15 2 -4 23 60 116 43 62 123 163 178 225 55 62 124 141 154 177 30 35 93 107 138 160 46 52 95 114 109 138 22 38 24 45 12 58 -22 21 -38 6 -231 -214 -166 -189 -390 -435 -555 -609 l-78 -83 -240 -25 c-132 -14 -305 -32 -384 -41 -171 -18 -326 -40 -681 -99 -355 -59 -497 -75 -740 -81 l-205 -5 41 38 c77 70 502 300 1019 550 881 427 1265 599 1585 711 396 139 883 279 1160 332 217 42 271 58 285 80 9 15 -20 40 -44 39 -9 0 -47 -7 -86 -14z m-348 -1321 c-17 -18 -244 -144 -258 -144 -9 0 -24 11 -33 25 -16 24 -18 24 -44 11 -15 -8 -63 -51 -107 -95 -44 -45 -83 -81 -88 -81 -4 0 -5 26 -1 58 5 51 4 60 -11 66 -13 5 -38 -15 -99 -77 -81 -82 -195 -167 -223 -167 -19 0 -9 16 98 156 42 56 80 111 83 121 5 17 41 25 264 63 141 24 286 49 322 56 75 14 106 17 97 8z m-1188 -104 c-15 -26 -30 -40 -43 -40 -17 0 -14 6 19 40 21 22 41 40 43 40 2 0 -7 -18 -19 -40z m370 -102 c-59 -101 -71 -113 -184 -189 -142 -95 -339 -181 -379 -166 -9 4 -16 15 -16 26 0 26 61 144 134 259 l57 90 62 10 c34 6 116 18 182 28 66 9 122 18 124 20 2 2 19 4 37 4 l32 0 -49 -82z"/>
-                    <path d="M4244 3366 c-12 -31 0 -51 31 -51 27 0 30 3 30 30 0 25 -4 30 -28 33 -17 2 -29 -2 -33 -12z"/>
-                    </g>
-                </svg>
-                <p class="quote">"Code is poetry written for machines, designed for humans."</p>
+            <div class="footer-logo">F<span class="accent">.</span></div>
+            <div class="footer-quote">"Kod sadece yazılmaz, tasarlanır ve hissedilir."</div>
+            <div class="footer-social">
+                <a href="https://github.com/e500ky" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/f%C4%B1rat-tuna-arslan-32537b332/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://twitter.com/arstechai" target="_blank"><i class="fab fa-twitter"></i></a>
             </div>
-            <div class="footer-content">
-                <div class="logo">F<span class="accent">.</span></div>
-                <div class="copyright">&copy; 2023 Fırat. All rights reserved.</div>
-                <div class="social-links">
-                    <a href="https://github.com/e500ky" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/f%C4%B1rat-tuna-arslan-32537b332/" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="https://twitter.com/arstechai" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                </div>
-            </div>
+            <div class="footer-copyright">&copy; 2023 Fırat Tuna Arslan. Tüm hakları saklıdır.</div>
         </div>
     </footer>
 
-    <script src="js/script.js"></script>
+    <!-- Project Modal -->
+    <div class="project-modal" id="project-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Proje Başlığı</h3>
+                <div class="modal-buttons">
+                    <button class="modal-github-btn" id="modal-github" title="GitHub'da görüntüle (G)">
+                        <i class="fab fa-github"></i>
+                    </button>
+                    <button class="modal-external-btn" id="modal-external" title="Yeni sekmede aç (T)">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="modal-close-btn" id="modal-close" title="Kapat (Esc)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modal-img" src="" alt="Proje görseli" />
+                </div>
+                <div class="modal-description">
+                    <p id="modal-desc">Proje açıklaması burada yer alacak...</p>
+                    <div class="modal-tech">
+                        <h4>Kullanılan Teknolojiler:</h4>
+                        <div id="modal-tech-list" class="tech-tags"></div>
+                    </div>
+                    <div class="modal-features">
+                        <h4>Özellikler:</h4>
+                        <ul id="modal-features-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Social Media Widget -->
+    <div class="floating-social">
+        <button class="social-toggle" id="social-toggle" aria-label="Sosyal medya menüsü">
+            <i class="fa-solid fa-share-nodes"></i>
+        </button>
+        <div class="social-links-float">
+            <a href="mailto:firattunaarslan@gmail.com" class="social-link" data-tooltip="Email">
+                <i class="fas fa-envelope"></i>
+            </a>
+            <a href="https://github.com/e500ky" target="_blank" class="social-link" data-tooltip="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/f%C4%B1rat-tuna-arslan-32537b332/" target="_blank" class="social-link" data-tooltip="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://twitter.com/firatmioo" target="_blank" class="social-link" data-tooltip="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://instagram.com/firattunaarslann" target="_blank" class="social-link" data-tooltip="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="js/portfolio.js"></script>
 </body>
 </html>

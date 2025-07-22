@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wobble - Discord Alternative | Fırat Tuna Arslan</title>
+    <link rel="stylesheet" href="../../css/portfolio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../public/favicon.ico">
+    <style>
+        .project-detail {
+            padding: 120px 0 60px 0;
+            min-height: 100vh;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #7877c6;
+            text-decoration: none;
+            margin-bottom: 32px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: #ff9f7c;
+            transform: translateX(-5px);
+        }
+        .project-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .project-hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #7877c6, #ff9f7c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        .project-image {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: rgba(155, 177, 195, 0.1);
+            border: 1px solid rgba(155, 177, 195, 0.2);
+            border-radius: 12px;
+            margin: 32px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #9bb1c3;
+        }
+        .project-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background: rgba(18, 18, 18, 0.8);
+            border: 1px solid rgba(155, 177, 195, 0.1);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+        .section h2 {
+            color: #7877c6;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .tech-item {
+            background: rgba(120, 119, 198, 0.1);
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .github-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+        .github-link {
+            background: rgba(120, 119, 198, 0.1);
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            color: #7877c6;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .github-link:hover {
+            background: rgba(255, 159, 124, 0.15);
+            border-color: rgba(255, 159, 124, 0.3);
+            color: #ff9f7c;
+        }
+    </style>
+</head>
+<body class="theme-dark">
+    <div class="background-gradient"></div>
+    
+    <div class="project-detail">
+        <div class="container">
+            <a href="../../" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Ana Sayfaya Dön
+            </a>
+            
+            <div class="project-hero">
+                <h1>Wobble</h1>
+                <p class="subtitle">Modern Discord Alternatifi</p>
+            </div>
+            
+            <div class="project-image">
+                <img src="../../assets/wobble-preview.png" alt="wobble", style="width: 100%; height: auto; border-radius: 12px;">
+            </div>
+            
+            <div class="project-content">
+                <div class="section">
+                    <h2>Proje Hakkında</h2>
+                    <p>Wobble, Discord'a modern bir alternatif olan sade ve etkili topluluk iletişim platformudur. Gelişmiş mesajlaşma, ses/video arama ve sunucu yönetim özellikleri ile kullanıcıların ihtiyaçlarını karşılar.</p>
+                    <p>Minimalist tasarım yaklaşımı ile karmaşıklığı azaltırken, güçlü özellikler sunarak kullanıcı deneyimini ön planda tutar.</p>
+                </div>
+                
+                <div class="section">
+                    <h2>Özellikler</h2>
+                    <ul>
+                        <li>Gerçek zamanlı mesajlaşma sistemi</li>
+                        <li>Ses ve video arama özellikleri</li>
+                        <li>Sunucu ve kanal yönetimi</li>
+                        <li>Dosya paylaşımı ve medya desteği</li>
+                        <li>Bot entegrasyonu ve API desteği</li>
+                        <li>End-to-end şifreleme</li>
+                        <li>Özelleştirilebilir kullanıcı profilleri</li>
+                        <li>Cross-platform uyumluluk</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Kullanılan Teknolojiler</h2>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-react" style="font-size: 2rem; color: #7877c6; margin-bottom: 8px;"></i>
+                            <h4>Next.js</h4>
+                            <p>Frontend framework</p>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-code" style="font-size: 2rem; color: #7877c6; margin-bottom: 8px;"></i>
+                            <h4>Go</h4>
+                            <p>Backend API</p>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-database" style="font-size: 2rem; color: #7877c6; margin-bottom: 8px;"></i>
+                            <h4>PocketBase</h4>
+                            <p>Veritabanı çözümü</p>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-video" style="font-size: 2rem; color: #7877c6; margin-bottom: 8px;"></i>
+                            <h4>WebRTC</h4>
+                            <p>Ses/Video iletişim</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Teknik Özellikler</h2>
+                    <p>Wobble, modern web teknolojileri kullanılarak geliştirilmiş olup, yüksek performans ve güvenilirlik sunmaktadır. Mikroservis mimarisi ile ölçeklenebilir bir yapıya sahiptir.</p>
+                    <p>Real-time communication için WebSocket teknolojisi kullanılmış, kullanıcı verilerinin güvenliği için end-to-end şifreleme implementasyonu yapılmıştır.</p>
+                </div>
+                
+                <div class="github-links">
+                    <a href="https://github.com/e500ky/wobble" target="_blank" class="github-link">
+                        <i class="fab fa-github"></i>
+                        GitHub Repository
+                    </a>
+                    <a href="#" class="github-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        Canlı Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
