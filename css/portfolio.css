@@ -34,6 +34,24 @@ body {
     margin: 0 auto;
     padding: 0 32px;
 }
+
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 12px;
+    }
+}
 .main-header {
     background: rgba(15, 15, 15, 0.98);
     backdrop-filter: blur(10px);
@@ -219,13 +237,54 @@ nav a.active::after, nav a:hover::after {
 }
 .project-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .project-list {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .project-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-list {
+        gap: 16px;
+    }
 }
 
 main {
     padding-left: 2.5rem;
-    padding-right:  2.5rem;
+    padding-right: 2.5rem;
+}
+
+@media (max-width: 1024px) {
+    main {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
 }
 
 
@@ -373,34 +432,351 @@ footer {
     color: #777;
 }
 @media (max-width: 768px) {
-    .container {
-        padding: 0 16px;
-    }
     .main-header .container {
         flex-direction: column;
         gap: 16px;
+        align-items: center;
     }
+    
+    .logo {
+        font-size: 1.3rem;
+    }
+    
     nav {
         width: 100%;
         justify-content: center;
     }
+    
     nav ul {
-        gap: 24px;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
+    
+    nav a {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+    
+    #theme-toggle {
+        font-size: 1rem;
+        padding: 6px 10px;
+    }
+    
     .hero {
         padding: 140px 0 60px 0;
+        text-align: center;
     }
+    
     .hero-content h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        line-height: 1.2;
+        margin-bottom: 16px;
     }
+    
+    .hero-content .subtitle {
+        font-size: 1rem;
+        margin-bottom: 16px;
+    }
+    
+    .hero-content .description {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+    
+    .about, .contact, .projects {
+        padding: 40px 0;
+    }
+    
+    .about h2, .projects h2, .contact h2 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+    }
+    
+    .about p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+    
     .project-list {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
-    .about, .contact {
-        padding: 24px;
+    
+    .project-card {
+        padding: 20px;
     }
+    
+    .project-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .project-card p {
+        font-size: 0.9rem;
+    }
+    
     .contact-links {
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .contact-links a {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    footer {
+        padding: 40px 0;
+        text-align: center;
+    }
+    
+    .footer-logo {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+    
+    .footer-quote {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+    
+    .footer-social {
+        margin-bottom: 16px;
+        justify-content: center;
+    }
+    
+    .footer-social a {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+        margin: 0 8px;
+    }
+    
+    .footer-copyright {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    nav a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #theme-toggle {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .project-card {
+        min-height: 120px;
+        cursor: pointer;
+    }
+    
+    .contact-links a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .footer-social a {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .modal-btn {
+        min-height: 44px;
+    }
+    
+    .social-toggle {
+        min-width: 52px;
+        min-height: 52px;
+    }
+    
+    .social-link {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+@media (max-width: 480px) {
+    .main-header {
+        padding: 16px 0;
+    }
+    
+    .main-header .container {
+        gap: 12px;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    nav ul {
+        gap: 16px;
+    }
+    
+    nav a {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+    
+    #theme-toggle {
+        font-size: 0.9rem;
+        padding: 5px 8px;
+    }
+    
+    .hero {
+        padding: 120px 0 50px 0;
+    }
+    
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero-content .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .hero-content .description {
+        font-size: 0.85rem;
+    }
+    
+    .about, .contact, .projects {
+        padding: 32px 0;
+    }
+    
+    .about h2, .projects h2, .contact h2 {
+        font-size: 1.4rem;
+    }
+    
+    .project-card {
+        padding: 16px;
+    }
+    
+    .contact-links a {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .floating-social {
+        bottom: 16px;
+        right: 12px;
+    }
+    
+    .social-toggle {
+        width: 48px;
+        height: 48px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+    
+    .social-links-float {
+        bottom: 72px;
+        right: 12px;
+        gap: 10px;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+    
+    .modal-content {
+        width: 98%;
+        max-height: 95vh;
+        margin: 10px;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        padding: 16px 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-close {
+        top: 12px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+    
+    .modal-body {
+        padding: 16px 20px;
+    }
+    
+    .modal-image {
+        height: 160px;
+        margin-bottom: 16px;
+    }
+    
+    .modal-description {
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+    }
+    
+    .modal-tech h4, .modal-features h4 {
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+    
+    .tech-tag {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .modal-features ul li {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .modal-actions {
+        padding: 12px 20px;
+        gap: 10px;
+    }
+    
+    .modal-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    footer {
+        padding: 32px 0;
+    }
+    
+    .footer-logo {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .footer-quote {
+        font-size: 0.85rem;
+        margin-bottom: 14px;
+        line-height: 1.5;
+    }
+    
+    .footer-social a {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+        margin: 0 6px;
+    }
+    
+    .footer-copyright {
+        font-size: 0.75rem;
     }
 }
 
@@ -627,7 +1003,7 @@ footer {
 .social-links-float {
     position: absolute;
     bottom: 80px;
-    right: 0;
+    right: 4px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -732,33 +1108,99 @@ footer {
     .modal-content {
         width: 95%;
         max-height: 90vh;
+        margin: 20px;
+        border-radius: 16px;
     }
     
     .modal-header {
         padding: 20px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
     }
     
     .modal-header h3 {
         font-size: 1.3rem;
+        margin-bottom: 0;
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
     }
     
     .modal-body {
-        padding: 24px;
+        padding: 20px 24px;
     }
     
     .modal-image {
-        height: 150px;
+        height: 180px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .modal-description {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    
+    .modal-tech h4, .modal-features h4 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+    
+    .tech-tag {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        margin: 2px 4px 2px 0;
+    }
+    
+    .modal-features ul li {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    
+    .modal-actions {
+        padding: 16px 24px;
+        gap: 12px;
+        flex-direction: column;
+    }
+    
+    .modal-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        width: 100%;
+        justify-content: center;
     }
     
     .floating-social {
         bottom: 20px;
-        right: 20px;
+        right: 16px;
     }
     
     .social-toggle {
-        width: 50px;
-        height: 50px;
+        width: 52px;
+        height: 52px;
         font-size: 18px;
+        border-radius: 12px;
+    }
+    
+    .social-links-float {
+        bottom: 80px;
+        right: 4px;
+        gap: 12px;
+    }
+    
+    .social-link {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+        border-radius: 10px;
     }
     
     .social-link {
@@ -931,4 +1373,244 @@ footer {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(155, 177, 195, 0.3);
     color: #6b7280;
+}
+
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 15, 15, 0.98);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(120, 119, 198, 0.2);
+    padding: 6px 8px;
+    z-index: 1000;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #888;
+    font-size: 8px;
+    padding: 3px 2px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.mobile-nav-item i {
+    font-size: 20px;
+    margin-bottom: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-item span {
+    font-size: 7px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1;
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.mobile-nav-item.active {
+    color: #7877c6;
+    background: rgba(120, 119, 198, 0.1);
+}
+
+.mobile-nav-item:hover {
+    color: #ff9f7c;
+    transform: translateY(-2px);
+}
+
+.mobile-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background: linear-gradient(90deg, #7877c6, #ff9f7c);
+    border-radius: 2px;
+}
+
+#mobile-theme-toggle .fa-sun {
+    display: none;
+}
+
+.theme-light .mobile-nav {
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid rgba(120, 119, 198, 0.2);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .mobile-nav-item {
+    color: #6b7280;
+}
+
+.theme-light .mobile-nav-item.active {
+    color: #7877c6;
+    background: rgba(120, 119, 198, 0.1);
+}
+
+.theme-light .mobile-nav-item:hover {
+    color: #ff9f7c;
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        padding: 12px 0;
+    }
+    
+    .main-header .container {
+        flex-direction: row;
+        justify-content: center;
+        gap: 0;
+    }
+    
+    .main-header nav {
+        display: none;
+    }
+    
+    #theme-toggle {
+        display: none;
+    }
+    
+    .mobile-nav {
+        display: flex;
+    }
+    
+    main {
+        padding-bottom: 75px;
+    }
+    
+    .hero {
+        padding: 90px 0 60px 0;
+    }
+    
+    .floating-social {
+        bottom: 75px;
+        right: 16px;
+    }
+    nav {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-nav {
+        height: 60px;
+        padding: 10px;
+    }
+    
+    .mobile-nav-item {
+        max-width: 60px;
+        padding: 1px 2px;
+        margin: 0;
+    }
+    
+    .mobile-nav-item i {
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+    
+    .mobile-nav-item span {
+        font-size: 6px;
+        margin-top: 0;
+    }
+    
+    .mobile-nav-item.active::before {
+        width: 12px;
+        height: 1.5px;
+        top: -2px;
+    }
+    
+    main {
+        padding-bottom: 65px;
+    }
+    
+    .hero {
+        padding: 80px 0 50px 0;
+    }
+    
+    .floating-social {
+        bottom: 70px;
+        right: 12px;
+    }
+    nav {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 360px) {
+    .mobile-nav {
+        height: 50px;
+        padding: 3px 4px;
+    }
+    
+    .mobile-nav-item {
+        padding: 2px 1px;
+    }
+    
+    .mobile-nav-item i {
+        font-size: 14px;
+    }
+    
+    .mobile-nav-item span {
+        display: none;
+    }
+    
+    .mobile-nav-item.active::before {
+        width: 12px;
+        height: 1px;
+    }
+    
+    main {
+        padding-bottom: 60px;
+    }
+
+    nav {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 320px) {
+    .mobile-nav {
+        padding: 2px 2px;
+        height: 45px;
+    }
+    
+    .mobile-nav-item {
+        padding: 1px;
+    }
+    
+    .mobile-nav-item i {
+        font-size: 12px;
+    }
+    
+    main {
+        padding-bottom: 55px;
+    }
+    nav {
+        gap: 10px;
+    }
 }

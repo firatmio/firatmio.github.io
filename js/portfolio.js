@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
+    const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
     const body = document.body;
     const navLinks = document.querySelectorAll('nav a[href^="#"]');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-item[href^="#"]');
+    const allNavLinks = document.querySelectorAll('nav a[href^="#"], .mobile-nav-item[href^="#"]');
     const sections = document.querySelectorAll('section[id]');
     
     const socialToggle = document.getElementById('social-toggle');
@@ -88,13 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentProjectId = null;
 
-    // Sosyal medya widget toggle
     socialToggle.addEventListener('click', function() {
         socialToggle.classList.toggle('active');
         socialLinksFloat.classList.toggle('active');
     });
 
-    // Dışarı tıklayınca sosyal medya widget'ını kapat
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.floating-social')) {
             socialToggle.classList.remove('active');
@@ -102,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Project modal functions
     function openModal(projectId) {
         const project = projectData[projectId];
         if (!project) return;
@@ -152,25 +152,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Modal close events
     modalClose.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', closeModal);
 
-    // Modal external link
     modalExternal.addEventListener('click', function() {
         if (currentProjectId && projectData[currentProjectId]) {
             window.open(projectData[currentProjectId].externalUrl, '_blank');
         }
     });
 
-    // Modal GitHub link
     modalGithub.addEventListener('click', function() {
         if (currentProjectId && projectData[currentProjectId]) {
             window.open(projectData[currentProjectId].githubUrl, '_blank');
         }
     });
 
-    // ESC tuşu ile modal kapatma
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && projectModal.classList.contains('active')) {
             closeModal();
@@ -191,20 +187,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-    // Tema değiştirme
-    themeToggle.addEventListener('click', function() {
+    function toggleTheme() {
         body.classList.toggle('theme-dark');
         body.classList.toggle('theme-light');
         
-        // LocalStorage'a tema tercihini kaydet
         const isDark = body.classList.contains('theme-dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         
-        // Buton ikonunu güncelle
         updateThemeIcon();
-    });
+        updateMobileThemeIcon();
+    }
+    
+    themeToggle.addEventListener('click', toggleTheme);
+    mobileThemeToggle.addEventListener('click', toggleTheme);
 
-    // Tema ikonu güncelleme fonksiyonu
     function updateThemeIcon() {
         const isDark = body.classList.contains('theme-dark');
         const moonIcon = themeToggle.querySelector('.fa-moon');
@@ -218,19 +214,31 @@ document.addEventListener('DOMContentLoaded', function() {
             sunIcon.style.display = 'none';
         }
     }
+    
+    function updateMobileThemeIcon() {
+        const isDark = body.classList.contains('theme-dark');
+        const moonIcon = mobileThemeToggle.querySelector('.fa-moon');
+        const sunIcon = mobileThemeToggle.querySelector('.fa-sun');
+        
+        if (isDark) {
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'block';
+        } else {
+            moonIcon.style.display = 'block';
+            sunIcon.style.display = 'none';
+        }
+    }
 
-    // Sayfa yüklendiğinde kayıtlı temayı uygula
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         body.classList.remove('theme-dark', 'theme-light');
         body.classList.add(savedTheme === 'dark' ? 'theme-dark' : 'theme-light');
     }
     
-    // İlk yüklemede ikonu güncelle
     updateThemeIcon();
+    updateMobileThemeIcon();
 
-    // Smooth scroll ve active class yönetimi
-    navLinks.forEach(link => {
+    allNavLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const targetId = this.getAttribute('href').substring(1);
@@ -242,8 +250,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     block: 'start'
                 });
 
-                navLinks.forEach(navLink => navLink.classList.remove('active'));
+                allNavLinks.forEach(navLink => navLink.classList.remove('active'));
                 this.classList.add('active');
+                
+                const correspondingDesktopLink = document.querySelector(`nav a[href="#${targetId}"]`);
+                const correspondingMobileLink = document.querySelector(`.mobile-nav-item[href="#${targetId}"]`);
+                
+                if (correspondingDesktopLink) correspondingDesktopLink.classList.add('active');
+                if (correspondingMobileLink) correspondingMobileLink.classList.add('active');
             }
         });
     });
@@ -260,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        navLinks.forEach(link => {
+        allNavLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === '#' + current) {
                 link.classList.add('active');
