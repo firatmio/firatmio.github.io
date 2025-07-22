@@ -70,6 +70,18 @@
             margin-bottom: 20px;
             font-size: 1.5rem;
         }
+        .section p {
+            color: #c8c8c8;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .section ul {
+            color: #c8c8c8;
+            line-height: 1.7;
+        }
+        .section li {
+            margin-bottom: 8px;
+        }
         .tech-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -82,6 +94,13 @@
             border-radius: 8px;
             padding: 16px;
             text-align: center;
+            color: #e8e8e8;
+            transition: all 0.3s ease;
+        }
+        .tech-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(120, 119, 198, 0.4);
+            background: rgba(120, 119, 198, 0.15);
         }
         .github-links {
             display: flex;
@@ -105,6 +124,151 @@
             background: rgba(255, 159, 124, 0.15);
             border-color: rgba(255, 159, 124, 0.3);
             color: #ff9f7c;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .project-detail {
+                padding: 100px 0 80px 0;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .back-btn {
+                font-size: 0.9rem;
+                margin-bottom: 24px;
+            }
+            
+            .project-hero {
+                margin-bottom: 40px;
+            }
+            
+            .project-hero h1 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            
+            .project-hero p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .project-image {
+                height: 250px;
+                margin: 24px auto;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 24px 20px;
+                margin-bottom: 24px;
+            }
+            
+            .section h2 {
+                font-size: 1.3rem;
+                margin-bottom: 16px;
+            }
+            
+            .section p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+            
+            .section li {
+                font-size: 0.9rem;
+            }
+            
+            .tech-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 12px;
+                margin-top: 16px;
+            }
+            
+            .tech-item {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            
+            .github-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                margin-top: 24px;
+            }
+            
+            .github-link {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                width: fit-content;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .project-detail {
+                padding: 90px 0 70px 0;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .project-hero h1 {
+                font-size: 1.7rem;
+            }
+            
+            .project-hero p {
+                font-size: 0.9rem;
+            }
+            
+            .project-image {
+                height: 200px;
+                margin: 20px auto;
+                font-size: 0.9rem;
+            }
+            
+            .section {
+                padding: 20px 16px;
+                margin-bottom: 20px;
+            }
+            
+            .section h2 {
+                font-size: 1.2rem;
+            }
+            
+            .section p, .section li {
+                font-size: 0.85rem;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .tech-item {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .github-link {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .project-hero h1 {
+                font-size: 1.5rem;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 16px 12px;
+            }
         }
     </style>
 </head>
