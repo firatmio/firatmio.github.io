@@ -4,11 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('nav a[href^="#"]');
     const sections = document.querySelectorAll('section[id]');
     
-    // Floating social media widget
     const socialToggle = document.getElementById('social-toggle');
     const socialLinksFloat = document.querySelector('.social-links-float');
 
-    // Project modal elements
     const projectCards = document.querySelectorAll('.project-card');
     const projectModal = document.getElementById('project-modal');
     const modalOverlay = document.querySelector('.modal-overlay');
@@ -21,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTechList = document.getElementById('modal-tech-list');
     const modalFeaturesList = document.getElementById('modal-features-list');
 
-    // Project data
     const projectData = {
         'deepdev': {
             title: 'DeepDev - AI Code Editor',
@@ -116,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
         modalImg.src = project.image;
         modalImg.alt = project.title;
 
-        // Teknolojileri ekle
         modalTechList.innerHTML = '';
         project.technologies.forEach(tech => {
             const techTag = document.createElement('span');
@@ -125,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
             modalTechList.appendChild(techTag);
         });
 
-        // Özellikleri ekle
         modalFeaturesList.innerHTML = '';
         project.features.forEach(feature => {
             const li = document.createElement('li');
@@ -150,7 +145,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentProjectId = null;
     }
 
-    // Project card click events
     projectCards.forEach(card => {
         card.addEventListener('click', function() {
             const projectId = this.dataset.project;
@@ -243,24 +237,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetSection = document.getElementById(targetId);
             
             if (targetSection) {
-                // Smooth scroll
                 targetSection.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });
 
-                // Active class güncelleme
                 navLinks.forEach(navLink => navLink.classList.remove('active'));
                 this.classList.add('active');
             }
         });
     });
 
-    // Scroll olayına göre active class güncelleme
     window.addEventListener('scroll', function() {
         let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100; // Header yüksekliği için offset
+            const sectionTop = section.offsetTop - 100;
             const sectionHeight = section.offsetHeight;
             const scrollTop = window.pageYOffset;
 

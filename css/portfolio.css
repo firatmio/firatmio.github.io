@@ -404,7 +404,7 @@ footer {
     }
 }
 
-/* Project Modal */
+
 .project-modal {
     position: fixed;
     top: 0;
@@ -587,7 +587,6 @@ footer {
     font-weight: bold;
 }
 
-/* Floating Social Media Widget */
 .floating-social {
     position: fixed;
     bottom: 30px;
@@ -730,7 +729,6 @@ footer {
         justify-content: center;
     }
     
-    /* Modal responsive */
     .modal-content {
         width: 95%;
         max-height: 90vh;
@@ -778,7 +776,6 @@ footer {
     width: 0;
 }
 
-/* Light Theme Styles */
 .theme-light {
     background: #f8f9fa;
     color: #2d3748;
