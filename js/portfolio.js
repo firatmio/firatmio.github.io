@@ -22,6 +22,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTechList = document.getElementById('modal-tech-list');
     const modalFeaturesList = document.getElementById('modal-features-list');
 
+    console.log('Found project cards:', projectCards.length); // Debug log
+    console.log('Modal elements:', {
+        projectModal: !!projectModal,
+        modalOverlay: !!modalOverlay,
+        modalClose: !!modalClose
+    }); // Debug log
+
     const projectData = {
         'deepdev': {
             title: 'DeepDev - AI Code Editor',
@@ -101,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Kapsamlı dokümantasyon',
                 'Unit test coverage'
             ],
-            image: 'https://github.com/firatmio/pywraps/blob/main/assets/PyWraps.png',
+            image: 'https://via.placeholder.com/800x300/7877c6/ffffff?text=PyWraps',
             externalUrl: './projects/pywraps/',
             githubUrl: 'https://github.com/firatmio/pywraps'
         }
@@ -122,8 +129,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function openModal(projectId) {
+        console.log('Opening modal for:', projectId); // Debug log
         const project = projectData[projectId];
-        if (!project) return;
+        if (!project) {
+            console.error('Project not found:', projectId);
+            return;
+        }
 
         currentProjectId = projectId;
         modalTitle.textContent = project.title;
@@ -166,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     projectCards.forEach(card => {
         card.addEventListener('click', function() {
             const projectId = this.dataset.project;
+            console.log('Card clicked:', projectId); // Debug log
             openModal(projectId);
         });
     });
