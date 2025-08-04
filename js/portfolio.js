@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ],
             image: 'https://via.placeholder.com/800x300/ff9f7c/ffffff?text=VR+Rehab',
             externalUrl: './projects/rehabilitasyon/',
-            githubUrl: 'https://github.com/e500ky/rehabilitasyon'
+            githubUrl: 'https://github.com/firatmio/rehabilitasyon'
         },
         'wobble': {
             title: 'Wobble - Discord Alternative',
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ],
             image: '../assets/wobble-preview.png',
             externalUrl: './projects/wobble/',
-            githubUrl: 'https://github.com/e500ky/wobble'
+            githubUrl: 'https://github.com/firatmio/wobble'
         },
         'film-platform': {
             title: 'Film Keşif Platformu',
