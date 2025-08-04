@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyWraps - Python Decorator Koleksiyonu | Fırat Tuna Arslan</title>
+    <link rel="stylesheet" href="../../css/portfolio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../../public/favicon.ico">
+    <style>
+        .project-detail {
+            padding: 120px 0 60px 0;
+            min-height: 100vh;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #7877c6;
+            text-decoration: none;
+            margin-bottom: 32px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            color: #ff9f7c;
+            transform: translateX(-5px);
+        }
+        .project-hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .project-hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #7877c6, #ff9f7c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        .project-image {
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            background: rgba(120, 119, 198, 0.1);
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            border-radius: 12px;
+            margin: 32px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7877c6;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .project-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            background: rgba(18, 18, 18, 0.6);
+            border: 1px solid rgba(155, 177, 195, 0.1);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+        .section h2 {
+            color: #7877c6;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        .section p {
+            color: #c8c8c8;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .section ul {
+            color: #c8c8c8;
+            line-height: 1.7;
+        }
+        .section li {
+            margin-bottom: 8px;
+        }
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .tech-item {
+            background: rgba(120, 119, 198, 0.1);
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .tech-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(120, 119, 198, 0.4);
+            background: rgba(120, 119, 198, 0.15);
+        }
+        .tech-item h4 {
+            color: #7877c6;
+            margin-bottom: 12px;
+        }
+        .tech-item p {
+            color: #b8b8b8;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .github-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+        .github-link {
+            background: rgba(120, 119, 198, 0.1);
+            border: 1px solid rgba(120, 119, 198, 0.2);
+            color: #7877c6;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .github-link:hover {
+            background: rgba(255, 159, 124, 0.15);
+            border-color: rgba(255, 159, 124, 0.3);
+            color: #ff9f7c;
+        }
+        .pypi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 159, 124, 0.1);
+            border: 1px solid rgba(255, 159, 124, 0.2);
+            color: #ff9f7c;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .pypi-badge:hover {
+            background: rgba(255, 159, 124, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .project-detail {
+                padding: 100px 0 80px 0;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .back-btn {
+                font-size: 0.9rem;
+                margin-bottom: 24px;
+            }
+            
+            .project-hero {
+                margin-bottom: 40px;
+            }
+            
+            .project-hero h1 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            
+            .project-hero p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .project-image {
+                height: 250px;
+                margin: 24px auto;
+                font-size: 1rem;
+            }
+            
+            .section {
+                padding: 24px 20px;
+                margin-bottom: 24px;
+            }
+            
+            .section h2 {
+                font-size: 1.5rem;
+                margin-bottom: 16px;
+            }
+            
+            .section p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 16px;
+            }
+            
+            .tech-item {
+                padding: 20px 16px;
+            }
+            
+            .tech-item h4 {
+                font-size: 1rem;
+            }
+            
+            .tech-item p {
+                font-size: 0.85rem;
+            }
+            
+            .github-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                margin-top: 24px;
+            }
+            
+            .github-link {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                width: fit-content;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .project-detail {
+                padding: 90px 0 70px 0;
+            }
+            
+            .container {
+                padding: 0 12px;
+            }
+            
+            .project-hero h1 {
+                font-size: 1.7rem;
+            }
+            
+            .project-hero p {
+                font-size: 0.9rem;
+            }
+            
+            .project-image {
+                height: 200px;
+                margin: 20px auto;
+                font-size: 0.9rem;
+            }
+            
+            .section {
+                padding: 20px 16px;
+                margin-bottom: 20px;
+            }
+            
+            .section h2 {
+                font-size: 1.2rem;
+            }
+            
+            .section p, .section li {
+                font-size: 0.85rem;
+            }
+            
+            .tech-item {
+                padding: 16px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .github-link {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-dark">
+    <div class="background-gradient"></div>
+    
+    <div class="project-detail">
+        <div class="container">
+            <a href="../../" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Ana Sayfaya Dön
+            </a>
+            
+            <div class="project-hero">
+                <h1>PyWraps - Python Decorator Koleksiyonu</h1>
+                <p>Python geliştiricileri için güçlü ve kullanışlı decorator koleksiyonu</p>
+                <a href="https://pypi.org/project/pywraps/" target="_blank" class="pypi-badge">
+                    <i class="fab fa-python"></i>
+                    PyPI'da Görüntüle
+                </a>
+            </div>
+            
+            <div class="project-image">
+                🎁 PyWraps - Python Decorators
+            </div>
+            
+            <div class="project-content">
+                <div class="section">
+                    <h2>Proje Hakkında</h2>
+                    <p>PyWraps, Python geliştiricilerinin sıkça ihtiyaç duyduğu işlevleri sağlayan güçlü bir decorator koleksiyonudur. Retry mekanizmaları, timeout kontrolü, debounce işlemleri ve background execution gibi yaygın ihtiyaçları karşılayan bu paket, kod kalitesini artırır ve geliştirme süreçlerini hızlandırır.</p>
+                    <p>Proje PyPI'da yayınlanmış olup, basit bir <code>pip install pywraps</code> komutuyla kullanıma hazırdır. Hem senkron hem de asenkron fonksiyonları destekler.</p>
+                </div>
+                
+                <div class="section">
+                    <h2>Ana Özellikler</h2>
+                    <ul>
+                        <li><strong>@retry</strong> - Başarısız fonksiyon çağrılarını otomatik olarak yeniden dener</li>
+                        <li><strong>@timeout</strong> - Fonksiyonlar için zaman aşımı kontrolü sağlar</li>
+                        <li><strong>@debounce</strong> - Hızlı ardışık fonksiyon çağrılarını engeller</li>
+                        <li><strong>@background</strong> - Fonksiyonları arka plan thread'lerinde çalıştırır</li>
+                        <li><strong>Asyncio Desteği</strong> - Asenkron fonksiyonlarla tam uyumluluk</li>
+                        <li><strong>Kolay Entegrasyon</strong> - Minimal kurulum ve kullanım</li>
+                        <li><strong>Kapsamlı Dokümantasyon</strong> - Detaylı kullanım örnekleri</li>
+                        <li><strong>Test Coverage</strong> - %90+ test kapsamı</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Kullanılan Teknolojiler</h2>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <h4>Python 3.7+</h4>
+                            <p>Modern Python özellikleri ve type hints</p>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Threading</h4>
+                            <p>Background işlemler için thread yönetimi</p>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Asyncio</h4>
+                            <p>Asenkron programlama desteği</p>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Decorators</h4>
+                            <p>Python decorator pattern implementasyonu</p>
+                        </div>
+                        <div class="tech-item">
+                            <h4>PyPI</h4>
+                            <p>Python Package Index dağıtımı</p>
+                        </div>
+                        <div class="tech-item">
+                            <h4>Unit Testing</h4>
+                            <p>Kapsamlı test suite ve coverage</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>Kullanım Alanları</h2>
+                    <ul>
+                        <li><strong>Web Geliştirme</strong> - API rate limiting, timeout koruması</li>
+                        <li><strong>Veri İşleme</strong> - Batch operations, network resilience</li>
+                        <li><strong>Kullanıcı Arayüzü</strong> - Search optimization, form validation</li>
+                        <li><strong>Sistem Entegrasyonu</strong> - Reliable external service calls</li>
+                        <li><strong>Background Processing</strong> - Email sending, file uploads</li>
+                        <li><strong>Error Handling</strong> - Graceful failure recovery</li>
+                    </ul>
+                </div>
+                
+                <div class="section">
+                    <h2>Topluluk ve Katkı</h2>
+                    <p>PyWraps açık kaynak bir projedir ve topluluk katkılarını memnuniyetle karşılar. Proje GitHub'da host edilmekte olup, issue'lar, pull request'ler ve özellik önerileri için açıktır.</p>
+                    <p>Apache 2.0 lisansı altında dağıtılan proje, hem kişisel hem de ticari projelerde serbestçe kullanılabilir.</p>
+                </div>
+                
+                <div class="github-links">
+                    <a href="https://github.com/firatmio/pywraps" target="_blank" class="github-link">
+                        <i class="fab fa-github"></i>
+                        GitHub Repository
+                    </a>
+                    <a href="https://pypi.org/project/pywraps/" target="_blank" class="github-link">
+                        <i class="fab fa-python"></i>
+                        PyPI Package
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

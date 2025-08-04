@@ -86,6 +86,24 @@ document.addEventListener('DOMContentLoaded', function() {
             image: '../assets/film-platform-preview.png',
             externalUrl: './projects/film-platform/',
             githubUrl: false
+        },
+        'pywraps': {
+            title: 'PyWraps - Python Decorator Koleksiyonu',
+            description: 'Python geliştiricileri için güçlü ve kullanışlı decorator koleksiyonu. Retry, timeout, debounce ve background execution gibi yaygın ihtiyaçları karşılar. PyPI\'da yayınlanan açık kaynak proje.',
+            technologies: ['Python', 'PyPI', 'Threading', 'Asyncio', 'Decorators', 'Unit Testing'],
+            features: [
+                'Retry decorator - otomatik yeniden deneme',
+                'Timeout decorator - zaman aşımı kontrolü',
+                'Debounce decorator - çağrı sınırlama',
+                'Background decorator - arka plan işlemi',
+                'Asyncio desteği',
+                'PyPI paketi olarak dağıtım',
+                'Kapsamlı dokümantasyon',
+                'Unit test coverage'
+            ],
+            image: 'https://github.com/firatmio/pywraps/blob/main/assets/PyWraps.png',
+            externalUrl: './projects/pywraps/',
+            githubUrl: 'https://github.com/firatmio/pywraps'
         }
     };
 
