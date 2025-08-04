@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Kapsamlı dokümantasyon',
                 'Unit test coverage'
             ],
-            image: 'https://via.placeholder.com/800x300/7877c6/ffffff?text=PyWraps',
+            image: 'https://raw.githubusercontent.com/firatmio/pywraps/refs/heads/main/assets/PyWraps.png',
             externalUrl: './projects/pywraps/',
             githubUrl: 'https://github.com/firatmio/pywraps'
         }
