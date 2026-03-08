@@ -1,10 +1,17 @@
-import { kv } from "@vercel/kv";
+import { createClient } from "redis";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import crypto from "crypto";
 
+function getRedisClient() {
+  return createClient({ url: process.env.REDIS_URL });
+}
+
 export async function POST() {
+  const client = getRedisClient();
   try {
+    await client.connect();
+
     const headersList = await headers();
     const forwarded = headersList.get("x-forwarded-for");
     const ip = forwarded?.split(",")[0]?.trim() || "unknown";
@@ -12,25 +19,31 @@ export async function POST() {
     // Hash the IP so we don't store raw IPs
     const hash = crypto.createHash("sha256").update(ip).digest("hex").slice(0, 16);
 
-    // Add to unique visitors set — returns 1 if new, 0 if already exists
-    const isNew = await kv.sadd("visitors:unique", hash);
+    // Add to unique visitors set — returns count of new members added
+    const added = await client.sAdd("visitors:unique", hash);
 
-    if (isNew) {
-      await kv.incr("visitors:total");
+    if (added > 0) {
+      await client.incr("visitors:total");
     }
 
-    const total = (await kv.get<number>("visitors:total")) || 0;
+    const total = Number(await client.get("visitors:total")) || 0;
+    await client.disconnect();
     return NextResponse.json({ count: total });
   } catch {
+    await client.disconnect().catch(() => {});
     return NextResponse.json({ count: 0 });
   }
 }
 
 export async function GET() {
+  const client = getRedisClient();
   try {
-    const total = (await kv.get<number>("visitors:total")) || 0;
+    await client.connect();
+    const total = Number(await client.get("visitors:total")) || 0;
+    await client.disconnect();
     return NextResponse.json({ count: total });
   } catch {
+    await client.disconnect().catch(() => {});
     return NextResponse.json({ count: 0 });
   }
 }
