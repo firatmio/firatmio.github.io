@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./Hero.module.css";
 import MagneticButton from "../MagneticButton";
+import KineticName from "../KineticName";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +17,7 @@ export default function Hero({ avatarUrl }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const greetingRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
+  const arrowRef = useRef<SVGSVGElement>(null);
   const titleRef = useRef<HTMLParagraphElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const ctasRef = useRef<HTMLDivElement>(null);
@@ -38,64 +40,33 @@ export default function Hero({ avatarUrl }: HeroProps) {
 
       // Name reveal - character by character
       if (nameRef.current) {
-        const nameText = nameRef.current.innerHTML;
-        const chars = nameRef.current.querySelectorAll("span[data-char]");
-        if (chars.length === 0) {
-          // Split name into chars
-          const words = nameRef.current.childNodes;
-          const allSpans: HTMLElement[] = [];
-          words.forEach((node) => {
-            if (node.nodeType === Node.TEXT_NODE) {
-              const text = node.textContent || "";
-              const fragment = document.createDocumentFragment();
-              text.split("").forEach((char) => {
-                if (char === " ") {
-                  fragment.appendChild(document.createTextNode(" "));
-                } else {
-                  const span = document.createElement("span");
-                  span.setAttribute("data-char", "");
-                  span.style.display = "inline-block";
-                  span.style.opacity = "0";
-                  span.style.transform = "translateY(60px)";
-                  span.textContent = char;
-                  fragment.appendChild(span);
-                  allSpans.push(span);
-                }
-              });
-              node.replaceWith(fragment);
-            } else if (node instanceof HTMLElement) {
-              const text = node.textContent || "";
-              node.innerHTML = "";
-              const innerSpans: HTMLElement[] = [];
-              text.split("").forEach((char) => {
-                if (char === " ") {
-                  node.appendChild(document.createTextNode(" "));
-                } else {
-                  const span = document.createElement("span");
-                  span.setAttribute("data-char", "");
-                  span.style.display = "inline-block";
-                  span.style.opacity = "0";
-                  span.style.transform = "translateY(60px)";
-                  span.textContent = char;
-                  node.appendChild(span);
-                  innerSpans.push(span);
-                }
-              });
-              allSpans.push(...innerSpans);
-            }
-          });
+        const chars = nameRef.current.querySelectorAll("[data-char]");
+        gsap.set(chars, { visibility: "visible", opacity: 0, y: 60 });
+        tl.to(
+          chars,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.03,
+            ease: "power4.out",
+          },
+          "-=0.2"
+        );
+      }
 
-          tl.to(
-            allSpans,
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.6,
-              stagger: 0.03,
-              ease: "power4.out",
-            },
-            "-=0.2"
-          );
+      // Hand-drawn arrow draw-in
+      if (arrowRef.current) {
+        const path = arrowRef.current.querySelector("path") as SVGPathElement;
+        const head1 = arrowRef.current.querySelector(".arrow-head-1") as SVGPathElement;
+        const head2 = arrowRef.current.querySelector(".arrow-head-2") as SVGPathElement;
+        if (path) {
+          const len = path.getTotalLength();
+          gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+          gsap.set([head1, head2], { strokeDasharray: 20, strokeDashoffset: 20 });
+          gsap.set(arrowRef.current, { opacity: 1 });
+          tl.to(path, { strokeDashoffset: 0, duration: 0.8, ease: "power2.inOut" }, "-=0.1");
+          tl.to([head1, head2], { strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, "-=0.2");
         }
       }
 
@@ -222,10 +193,42 @@ export default function Hero({ avatarUrl }: HeroProps) {
             {"// Hello World"}
           </div>
 
-          <h1 ref={nameRef} className={styles.name}>
-            Fırat Tuna{" "}
-            <span className={styles.nameAccent}>Arslan</span>
-          </h1>
+          <div className={styles.nameWrapper}>
+            <KineticName
+              ref={nameRef}
+              firstName="Fırat Tuna"
+              lastName="Arslan"
+            />
+            <svg
+              ref={arrowRef}
+              className={styles.handArrow}
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M82 3 C78 6, 70 10, 62 18 C54 26, 56 32, 48 36 C40 40, 32 35, 28 42 C24 49, 28 56, 22 64 C16 72, 10 78, 14 88"
+                stroke="var(--accent)"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                className="arrow-head-1"
+                d="M6 80 L14 88"
+                stroke="var(--accent)"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <path
+                className="arrow-head-2"
+                d="M22 82 L14 88"
+                stroke="var(--accent)"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
 
           <p ref={titleRef} className={styles.title} style={{ transform: "translateY(30px)" }}>
             Software &amp; Full-Stack Web Developer

@@ -1,0 +1,129 @@
+/* Container — replaces the h1 .name */
+.container {
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--text-primary);
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  cursor: pointer;
+  position: relative;
+}
+
+.word {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.space {
+  display: inline-block;
+  width: 0.25em;
+}
+
+/* Individual character wrapper */
+.char {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  will-change: max-width;
+  visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+}
+
+/* Separator line between characters (visible on hover) */
+.char::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  right: 0;
+  width: 1px;
+  height: 80%;
+  background-color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  transition-delay: calc(var(--char-index, 0) * 0.05s);
+}
+
+.active .char::after {
+  opacity: 0.3;
+}
+
+.char:last-child::after {
+  display: none;
+}
+
+/* The actual letter */
+.charInner {
+  display: inline-block;
+  position: relative;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Accent word (Arslan) */
+.accentWord .charInner {
+  color: var(--accent);
+}
+
+/* ================================= */
+/* Kinetic Type — fullscreen overlay */
+/* ================================= */
+
+.kineticType {
+  position: fixed;
+  height: 100vmax;
+  width: 100vmax;
+  text-transform: uppercase;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  margin-top: -50vmax;
+  margin-left: -50vmax;
+  will-change: transform;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  z-index: 9999;
+  visibility: hidden;
+}
+
+/* Blur overlay — hidden by default, shown via JS on hover */
+.kineticBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.typeLine {
+  white-space: nowrap;
+  font-size: clamp(3rem, 8vh, 7rem);
+  line-height: 0.75;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  opacity: 0;
+  user-select: none;
+  will-change: transform, opacity;
+  position: relative;
+}
+
+.typeLineOdd {
+  z-index: 101;
+}
+
+.typeLineEven {
+  z-index: 999;
+}
+
+@media (max-width: 768px) {
+  .typeLine {
+    font-size: clamp(2rem, 5vh, 4rem);
+  }
+}
