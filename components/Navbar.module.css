@@ -87,15 +87,10 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  z-index: 110;
-  position: relative;
-}
-
-.hamburgerOpen {
   position: fixed;
   top: 20px;
   right: var(--container-padding);
-  z-index: 110;
+  z-index: 9999;
 }
 
 .hamburgerOpen .hamburgerLine:nth-child(1) {
@@ -111,7 +106,7 @@
 }
 
 .hamburgerLine {
-  width: 24px;
+  width: 28px;
   height: 2px;
   background: var(--text-primary);
   border-radius: 2px;
@@ -123,7 +118,7 @@
   position: fixed;
   inset: 0;
   background: var(--bg-primary);
-  z-index: 105;
+  z-index: 99;
   flex-direction: column;
   align-items: center;
   justify-content: center;

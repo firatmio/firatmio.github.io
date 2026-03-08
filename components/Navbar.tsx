@@ -126,17 +126,18 @@ export default function Navbar() {
             ))}
           </div>
 
-          <button
-            className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ""}`}
-            onClick={toggleMobile}
-            aria-label="Toggle menu"
-          >
-            <span className={styles.hamburgerLine} />
-            <span className={styles.hamburgerLine} />
-            <span className={styles.hamburgerLine} />
-          </button>
         </div>
       </nav>
+
+      <button
+        className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ""}`}
+        onClick={toggleMobile}
+        aria-label="Toggle menu"
+      >
+        <span className={styles.hamburgerLine} />
+        <span className={styles.hamburgerLine} />
+        <span className={styles.hamburgerLine} />
+      </button>
 
       <div
         ref={mobileMenuRef}
