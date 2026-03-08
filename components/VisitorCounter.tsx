@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./VisitorCounter.module.css";
+import { IoEye } from "react-icons/io5";
 
 export default function VisitorCounter() {
   const [count, setCount] = useState<number | null>(null);
@@ -19,18 +20,7 @@ export default function VisitorCounter() {
 
   return (
     <div className={styles.counter}>
-      <svg
-        className={styles.icon}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
+      <IoEye />
       <span className={styles.count}>{count.toLocaleString("tr-TR")}</span>
       <span className={styles.label}>visitor</span>
     </div>
