@@ -46,10 +46,9 @@ export default async function TwitterImage() {
         />
 
         <svg
-          width="120"
-          height="120"
+          width="280"
+          height="280"
           viewBox="0 0 1500 1500"
-          style={{ marginBottom: 40 }}
         >
           <path
             fill="#ffffff"
@@ -60,54 +59,6 @@ export default async function TwitterImage() {
             d="M 1089.191406 781.316406 C 1089.191406 872.921875 1037.363281 952.445312 961.390625 992.066406 C 928.527344 1009.230469 891.167969 1018.933594 851.546875 1018.933594 L 523.910156 1018.933594 C 303.460938 1018.933594 116.851562 1163.992188 54.398438 1363.882812 C 39.902344 1317.496094 32.097656 1268.175781 32.097656 1217.019531 C 32.097656 1146.554688 46.910156 1079.546875 73.617188 1018.933594 C 149.835938 845.96875 322.769531 725.199219 523.910156 725.199219 L 851.546875 725.199219 C 927.335938 725.199219 994.863281 689.710938 1038.371094 634.453125 C 1059.117188 660.765625 1074.378906 691.574219 1082.519531 725.199219 C 1086.894531 743.195312 1089.191406 761.980469 1089.191406 781.316406"
           />
         </svg>
-
-        <div
-          style={{
-            fontSize: 64,
-            fontWeight: 800,
-            color: "#ededed",
-            letterSpacing: -3,
-            lineHeight: 1.1,
-            display: "flex",
-          }}
-        >
-          Fırat Tuna Arslan
-        </div>
-
-        <div
-          style={{
-            fontSize: 28,
-            color: "#999999",
-            marginTop: 16,
-            display: "flex",
-          }}
-        >
-          Software & Full-Stack Web Developer
-        </div>
-
-        <div
-          style={{
-            width: 60,
-            height: 4,
-            borderRadius: 2,
-            background: "#ff6b6b",
-            marginTop: 32,
-            display: "flex",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            bottom: 40,
-            right: 60,
-            fontSize: 20,
-            color: "#666666",
-            display: "flex",
-          }}
-        >
-          firattunaarslan.me
-        </div>
       </div>
     ),
     { ...size }
