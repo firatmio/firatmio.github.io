@@ -19,6 +19,18 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Fırat Tuna Arslan | Portfolio",
+  icons: {
+    icon: [
+      {
+        url: "/favicon-light.svg", // Aydınlık modda görünecek olan
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/favicon-dark.svg",  // Karanlık modda (asıl kalite burada) görünecek olan
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
   description:
     "Software & Full-Stack Web Developer — AI Engineering student with 8+ years of experience building production-grade systems across web, desktop, and AI platforms.",
   keywords: [
