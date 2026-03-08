@@ -41,6 +41,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 10px;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
