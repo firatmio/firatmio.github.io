@@ -8,7 +8,6 @@ import Skills from "@/components/sections/Skills";
 import Projects from "@/components/sections/Projects";
 import Timeline from "@/components/sections/Timeline";
 import Contact from "@/components/sections/Contact";
-import BouncyDivider from "@/components/BouncyDivider";
 import Footer from "@/components/sections/Footer";
 import type { GitHubRepo } from "@/lib/github";
 
@@ -41,7 +40,6 @@ export default function PageContent({
         <Projects repos={repos} />
         <Timeline />
         <Contact />
-        <BouncyDivider />
         <Footer />
       </main>
     </>

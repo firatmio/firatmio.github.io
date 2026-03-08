@@ -8,21 +8,6 @@ import MagneticButton from "../MagneticButton";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HERO_KEYWORDS = [
-  { text: "BUILD", style: { top: "8%", left: "3%" } },
-  { text: "SHIP", style: { top: "5%", left: "82%" } },
-  { text: "CODE", style: { top: "18%", left: "92%" } },
-  { text: "DEPLOY", style: { top: "72%", left: "2%" } },
-  { text: "CREATE", style: { top: "85%", left: "88%" } },
-  { text: "ITERATE", style: { top: "90%", left: "6%" } },
-  { text: "DESIGN", style: { top: "30%", left: "1%" } },
-  { text: "SOLVE", style: { top: "55%", left: "95%" } },
-  { text: "TEST", style: { top: "45%", left: "4%" } },
-  { text: "SCALE", style: { top: "65%", left: "90%" } },
-  { text: "DREAM", style: { top: "38%", left: "88%" } },
-  { text: "INNOVATE", style: { top: "78%", left: "45%" } },
-];
-
 interface HeroProps {
   avatarUrl: string;
 }
@@ -38,7 +23,6 @@ export default function Hero({ avatarUrl }: HeroProps) {
   const glowRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const shapesRef = useRef<HTMLDivElement>(null);
-  const keywordsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -52,65 +36,67 @@ export default function Hero({ avatarUrl }: HeroProps) {
         ease: "power3.out",
       });
 
-      // Name reveal - character by character with blur
+      // Name reveal - character by character
       if (nameRef.current) {
-        const words = nameRef.current.childNodes;
-        const allSpans: HTMLElement[] = [];
-        words.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent || "";
-            const fragment = document.createDocumentFragment();
-            text.split("").forEach((char) => {
-              if (char === " ") {
-                fragment.appendChild(document.createTextNode(" "));
-              } else {
-                const span = document.createElement("span");
-                span.setAttribute("data-char", "");
-                span.style.display = "inline-block";
-                span.style.opacity = "0";
-                span.style.transform = "translateY(60px)";
-                span.style.filter = "blur(8px)";
-                span.textContent = char;
-                fragment.appendChild(span);
-                allSpans.push(span);
-              }
-            });
-            node.replaceWith(fragment);
-          } else if (node instanceof HTMLElement) {
-            const text = node.textContent || "";
-            node.innerHTML = "";
-            const innerSpans: HTMLElement[] = [];
-            text.split("").forEach((char) => {
-              if (char === " ") {
-                node.appendChild(document.createTextNode(" "));
-              } else {
-                const span = document.createElement("span");
-                span.setAttribute("data-char", "");
-                span.style.display = "inline-block";
-                span.style.opacity = "0";
-                span.style.transform = "translateY(60px)";
-                span.style.filter = "blur(8px)";
-                span.textContent = char;
-                node.appendChild(span);
-                innerSpans.push(span);
-              }
-            });
-            allSpans.push(...innerSpans);
-          }
-        });
+        const nameText = nameRef.current.innerHTML;
+        const chars = nameRef.current.querySelectorAll("span[data-char]");
+        if (chars.length === 0) {
+          // Split name into chars
+          const words = nameRef.current.childNodes;
+          const allSpans: HTMLElement[] = [];
+          words.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const text = node.textContent || "";
+              const fragment = document.createDocumentFragment();
+              text.split("").forEach((char) => {
+                if (char === " ") {
+                  fragment.appendChild(document.createTextNode(" "));
+                } else {
+                  const span = document.createElement("span");
+                  span.setAttribute("data-char", "");
+                  span.style.display = "inline-block";
+                  span.style.opacity = "0";
+                  span.style.transform = "translateY(60px)";
+                  span.textContent = char;
+                  fragment.appendChild(span);
+                  allSpans.push(span);
+                }
+              });
+              node.replaceWith(fragment);
+            } else if (node instanceof HTMLElement) {
+              const text = node.textContent || "";
+              node.innerHTML = "";
+              const innerSpans: HTMLElement[] = [];
+              text.split("").forEach((char) => {
+                if (char === " ") {
+                  node.appendChild(document.createTextNode(" "));
+                } else {
+                  const span = document.createElement("span");
+                  span.setAttribute("data-char", "");
+                  span.style.display = "inline-block";
+                  span.style.opacity = "0";
+                  span.style.transform = "translateY(60px)";
+                  span.textContent = char;
+                  node.appendChild(span);
+                  innerSpans.push(span);
+                }
+              });
+              allSpans.push(...innerSpans);
+            }
+          });
 
-        tl.to(
-          allSpans,
-          {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.6,
-            stagger: 0.03,
-            ease: "power4.out",
-          },
-          "-=0.2"
-        );
+          tl.to(
+            allSpans,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              stagger: 0.03,
+              ease: "power4.out",
+            },
+            "-=0.2"
+          );
+        }
       }
 
       // Title slide up
@@ -181,32 +167,6 @@ export default function Hero({ avatarUrl }: HeroProps) {
         "-=0.2"
       );
 
-      // Background keywords fade in + pulse
-      if (keywordsRef.current) {
-        const kwElements = keywordsRef.current.children;
-        Array.from(kwElements).forEach((kw, i) => {
-          const baseOpacity = 0.05 + Math.random() * 0.04;
-          gsap.fromTo(
-            kw,
-            { opacity: 0 },
-            {
-              opacity: baseOpacity,
-              duration: 1.5 + Math.random() * 1.5,
-              delay: 2.4 + i * 0.12,
-              ease: "power2.out",
-            }
-          );
-          gsap.to(kw, {
-            opacity: `+=${0.03}`,
-            duration: 2 + Math.random() * 2,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: 4 + i * 0.3,
-          });
-        });
-      }
-
       // Floating shapes parallax
       if (shapesRef.current) {
         const shapes = shapesRef.current.children;
@@ -223,29 +183,19 @@ export default function Hero({ avatarUrl }: HeroProps) {
         });
       }
 
-      // Mouse parallax for shapes + keywords
+      // Mouse parallax
       const handleMouse = (e: MouseEvent) => {
+        if (!shapesRef.current) return;
         const { clientX, clientY } = e;
         const xRatio = (clientX / window.innerWidth - 0.5) * 2;
         const yRatio = (clientY / window.innerHeight - 0.5) * 2;
 
-        if (shapesRef.current) {
-          gsap.to(shapesRef.current.children, {
-            x: (i) => xRatio * (15 + i * 10),
-            y: (i) => yRatio * (15 + i * 10),
-            duration: 1,
-            ease: "power2.out",
-          });
-        }
-
-        if (keywordsRef.current) {
-          gsap.to(keywordsRef.current.children, {
-            x: (i) => -xRatio * (5 + (i % 4) * 3),
-            y: (i) => -yRatio * (5 + (i % 4) * 3),
-            duration: 1.5,
-            ease: "power2.out",
-          });
-        }
+        gsap.to(shapesRef.current.children, {
+          x: (i) => xRatio * (15 + i * 10),
+          y: (i) => yRatio * (15 + i * 10),
+          duration: 1,
+          ease: "power2.out",
+        });
       };
 
       window.addEventListener("mousemove", handleMouse);
@@ -259,18 +209,6 @@ export default function Hero({ avatarUrl }: HeroProps) {
   return (
     <section ref={sectionRef} className={styles.hero} id="hero">
       <div className={styles.gridBg} />
-
-      <div ref={keywordsRef} className={styles.heroKeywords}>
-        {HERO_KEYWORDS.map((kw, i) => (
-          <span
-            key={i}
-            className={styles.heroKeyword}
-            style={kw.style}
-          >
-            {kw.text}
-          </span>
-        ))}
-      </div>
 
       <div ref={shapesRef} className={styles.floatingShapes}>
         <div className={`${styles.shape} ${styles.shape1}`} />

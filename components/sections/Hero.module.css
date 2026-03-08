@@ -207,26 +207,6 @@
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
 }
 
-.heroKeywords {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.heroKeyword {
-  position: absolute;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  opacity: 0;
-  white-space: nowrap;
-  user-select: none;
-}
-
 .scrollIndicator {
   position: absolute;
   bottom: 40px;
