@@ -135,7 +135,7 @@
   opacity: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
   .ctas {
     flex-direction: column;
     width: 90%;
