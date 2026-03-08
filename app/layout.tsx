@@ -4,6 +4,7 @@ import "./globals.css";
 import GSAPProvider from "@/components/providers/GSAPProvider";
 import CustomCursor from "@/components/CustomCursor";
 import Navbar from "@/components/Navbar";
+import VisitorCounter from "@/components/VisitorCounter";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -62,6 +63,7 @@ export default function RootLayout({
         <GSAPProvider>
           <CustomCursor />
           <Navbar />
+          <VisitorCounter />
           {children}
         </GSAPProvider>
       </body>

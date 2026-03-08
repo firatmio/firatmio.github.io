@@ -1,0 +1,45 @@
+.counter {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  z-index: 50;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+.counter:hover {
+  opacity: 1;
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+
+.count {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+}
+
+@media (max-width: 768px) {
+  .counter {
+    display: none;
+  }
+}
