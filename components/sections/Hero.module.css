@@ -194,6 +194,7 @@
 
 .avatarGlow {
   position: absolute;
+  display: none;
   inset: -20px;
   border-radius: 50%;
   background: radial-gradient(
