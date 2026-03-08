@@ -21,6 +21,7 @@ export default function VisitorCounter() {
   return (
     <div className={styles.counter}>
       <IoEye />
+      
       <span className={styles.count}>{count.toLocaleString("tr-TR")}</span>
       <span className={styles.label}>visitor</span>
     </div>
