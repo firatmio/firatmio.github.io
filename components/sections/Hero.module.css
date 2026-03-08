@@ -135,6 +135,14 @@
   opacity: 0;
 }
 
+@media (max-width: 768px) {
+  .ctas {
+    flex-direction: column;
+    width: 90%;
+    max-width: none;
+  }
+}
+
 .ctaPrimary {
   display: inline-flex;
   align-items: center;

@@ -69,14 +69,6 @@
   font-size: 14px;
 }
 
-@media (max-width: 768px) {
-  .ctas {
-    flex-direction: column;
-    width: 100%;
-    max-width: none;
-  }
-}
-
 .ctas a {
   display: flex;
   justify-content: center;
