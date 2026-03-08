@@ -300,28 +300,4 @@
   100% { top: 100%; }
 }
 
-@media (max-width: 968px) {
-  .heroInner {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 40px;
-  }
 
-  .content {
-    align-items: center;
-    order: 2;
-  }
-
-  .avatarSide {
-    order: 1;
-  }
-
-  .ctas {
-    justify-content: center;
-  }
-
-  .avatarWrapper {
-    width: 220px;
-    height: 220px;
-  }
-}

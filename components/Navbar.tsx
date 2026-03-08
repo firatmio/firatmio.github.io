@@ -127,7 +127,7 @@ export default function Navbar() {
           </div>
 
           <button
-            className={styles.hamburger}
+            className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ""}`}
             onClick={toggleMobile}
             aria-label="Toggle menu"
           >

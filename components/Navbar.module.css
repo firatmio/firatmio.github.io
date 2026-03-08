@@ -88,6 +88,26 @@
   gap: 6px;
   padding: 8px;
   z-index: 110;
+  position: relative;
+}
+
+.hamburgerOpen {
+  position: fixed;
+  top: 20px;
+  right: var(--container-padding);
+  z-index: 110;
+}
+
+.hamburgerOpen .hamburgerLine:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburgerOpen .hamburgerLine:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburgerOpen .hamburgerLine:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .hamburgerLine {
