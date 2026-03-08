@@ -32,7 +32,7 @@ export default function VisitorCounter() {
         <circle cx="12" cy="12" r="3" />
       </svg>
       <span className={styles.count}>{count.toLocaleString("tr-TR")}</span>
-      <span className={styles.label}>ziyaretçi</span>
+      <span className={styles.label}>visitor</span>
     </div>
   );
 }
