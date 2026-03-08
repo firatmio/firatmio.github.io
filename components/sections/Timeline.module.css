@@ -1,0 +1,154 @@
+.timeline {
+  position: relative;
+  overflow: hidden;
+}
+
+.timelineInner {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 64px;
+}
+
+.track {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.line {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--border);
+}
+
+.lineFill {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  width: 2px;
+  height: 0%;
+  background: linear-gradient(180deg, var(--accent), var(--secondary));
+  border-radius: 1px;
+}
+
+.items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding-left: 64px;
+}
+
+.item {
+  position: relative;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.dot {
+  position: absolute;
+  left: -52px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-light);
+  z-index: 2;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dotActive {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(122, 90, 245, 0.3);
+}
+
+.dotPulse {
+  position: absolute;
+  left: -52px;
+  top: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  z-index: 1;
+}
+
+.year {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.itemTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.itemDesc {
+  font-size: 15px;
+  color: var(--text-tertiary);
+  line-height: 1.7;
+}
+
+.itemTechs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tech {
+  padding: 4px 12px;
+  background: var(--bg-tertiary);
+  border-radius: 50px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .line,
+  .lineFill {
+    left: 12px;
+  }
+
+  .items {
+    padding-left: 48px;
+  }
+
+  .dot,
+  .dotPulse {
+    left: -44px;
+    width: 16px;
+    height: 16px;
+  }
+}
