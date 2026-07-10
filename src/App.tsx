@@ -198,6 +198,7 @@ function App() {
     onCleanup(() => document.removeEventListener('click', handleImageClick))
   })
 
+  
   // Listen for ESC key to dismiss preview
   createEffect(() => {
     if (previewImg() !== null) {
