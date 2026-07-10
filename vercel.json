@@ -1,3 +1,6 @@
 {
-  "framework": "vite"
+  "framework": "vite",
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist",
+  "installCommand": "bun install"
 }
