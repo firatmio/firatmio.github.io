@@ -649,6 +649,7 @@ footer {
   user-select: none;
   -webkit-user-select: none;
   animation: tooltip-fade-in 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: top 0.25s cubic-bezier(0.16, 1, 0.3, 1), left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes tooltip-fade-in {
