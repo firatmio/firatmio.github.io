@@ -373,11 +373,91 @@ function App() {
           <p>The 1D CNN is trained on the MIT-BIH Arrhythmia database, classifying individual heartbeats into normal, ventricular ectopic, or supraventricular ectopic beats with 98.4% accuracy. When an anomaly is detected, a localized signal segment is serialized and sent to the MedGemma generator. The language model translates the structural parameters (such as R-R intervals, QRS duration, and T-wave inversions) into cohesive, structured clinical summaries, speeding up clinical reviews and diagnostic timelines.</p>
         </>
       )
+    },
+    {
+      id: 4,
+      slug: "cuda-optimization-journey",
+      title: "The CUDA Kernel Evolution: Bypassing PCIe and Memory Bandwidth Limits",
+      date: "August 2026",
+      readTime: "12 min read",
+      summary: "An in-depth systems engineering log of Myelin's optimization path, explaining how custom warp-level reductions, device-resident memory execution, and mixed-precision quantization formats achieved a 165× speedup.",
+      content: () => (
+        <>
+          <p>Developing custom inference runtimes for Large Language Models (LLMs) on consumer-grade hardware requires confronting physical hardware ceilings. In our initial v0 implementation of <strong>Myelin</strong>, a naive FP32 execution path was utilized. While mathematically correct, it was functionally unusable—running Llama 3.2 1B at a sluggish 630 ms per token. The primary culprit was the <strong>PCIe transfer bottleneck</strong>: the kernel re-uploaded all active layer weights (~3.7 GB of data) to VRAM on every single token step, saturating the PCIe bus and starving the GPU compute units.</p>
+          <p>What followed was a systematic series of engineering phases (B1 through B4) designed to squeeze optimal performance out of an NVIDIA RTX 4060 Laptop GPU (8GB VRAM, ~140 GB/s bandwidth limits).</p>
+          
+          <h3>Phase 1: Residency and Quantization (B1 & B2)</h3>
+          <p>The first optimization (B1) was straightforward: upload weights once and keep them resident in VRAM. This instantly dropped generation times to <strong>157.9 ms/token</strong> (a 3.8× speedup). However, the VRAM footprint was still high. In B2, we introduced per-row INT8 weight quantization. This shrunk the resident model size from 3712 MB to <strong>1180 MB</strong> while introducing a negligible perplexity rise of just <strong>+0.79%</strong>.</p>
+          <p>Surprisingly, INT8 quantization yielded almost no speed increase in B2 (~5% faster). This counter-intuitive result indicated that we were launch-overhead-bound, not memory-bandwidth-bound. The latency was dominated by the host launching ~113 kernels per token step, which meant the GPU spent more time waiting for the CPU to submit kernel launches over the driver queue than actually crunching numbers.</p>
+
+          <h3>Phase 2: Fusion and Device Residency (B3a & B3b)</h3>
+          <p>To eliminate launch and synchronization delays, we began fusing kernels. In B3a, we fused the QKV projections and the SwiGLU feed-forward chain, reducing synchronization events from 7 to 3 per transformer layer. This dropped latency to <strong>139.4 ms/token</strong>. In B3b, we went a step further: the entire activation vector was made device-resident (including RMSNorm, RoPE, GQA, and KV-cache storage), bringing host-device communication down to exactly 1 HtoD write and 1 DtoH read per token step. Yet, this only yielded a minor 2% speed increase (129.1 ms/token).</p>
+          <p>This result refuted our hypothesis that host-device round-trips were the primary floor. The true bottleneck was identified: the naive GEMV (matrix-vector multiplication) CUDA kernel itself, which relied on serial, uncoalesced global memory reads. Each thread was reading single floating-point values from global memory, resulting in terrible memory alignment and bus utilization.</p>
+
+          <h3>Phase 3: The Warp-Level Breakthrough (B3c & B3 r4)</h3>
+          <p>In B3c, we completely rewrote the GEMV kernels to operate at the warp level. We assigned a warp (32 threads) per output row and implemented coalesced <code>float4</code> and <code>char4</code> vectorized global memory loads, coupled with warp-shuffle reductions (<code>__shfl_down_sync</code>) to resolve threads in register space. The results were immediate and dramatic:</p>
+          <ul>
+            <li>FP32 performance dropped from 129.1 ms to <strong>20.9 ms/token</strong> (a 6.2× speedup).</li>
+            <li>INT8 quantization finally cashed in on its bandwidth savings, running at <strong>10.7 ms/token</strong> at full depth.</li>
+          </ul>
+          <p>In B3 round 4, we combined the device-resident pipeline and the INT8 warp-level kernels. This achieved a blistering <strong>6.2 ms/token (~161 tokens/s)</strong> at full 16-layer depth. For the first time, Myelin outran Ollama (which achieves ~146 tokens/s on the same hardware), despite our engine handling 2× more bytes per token step due to INT8 weight storage versus Ollama's highly compressed 4-bit format.</p>
+
+          <h3>Phase 4: CUDA Graphs and Memory Bandwidth Saturation (B4)</h3>
+          <p>To capture and replay the entire generation loop, we captured the GPU execution sequence as a single CUDA Graph in B4. Replaying the graph eliminated CPU kernel submission latency entirely, bringing masked execution (8/16 layers active) down to <strong>3.8 ms/token (~263 tokens/s)</strong>.</p>
+          <p>At this stage, we reached the hardware limit: the execution became entirely memory-bandwidth-bound. Because Llama 3.2 1B (INT8) requires reading 1.18 GB of weights per token, the absolute physical floor on our laptop GPU is approximately 4.7 ms/token. Reaching 3.8 ms/token is only made possible by Myelin's signature dynamic layer-masking mechanism.</p>
+
+          <h3>The Quality Frontier: Mixed-Precision and Sparsity</h3>
+          <p>While experimental INT4 block quantization (ADR-0009) pushed throughput to a blazing 3.9 ms/token at full depth, it suffered from a <strong>+21.35% perplexity rise</strong>, exceeding our quality limit of 10%. To recover the loss, we developed a mixed-precision mode: keeping the top-4 most critical layers at INT8 and compressing the remaining layers to INT4. This achieved a high-speed profile of <strong>4.7 ms/token (~213 tokens/s)</strong> at a manageable <strong>+2.21% perplexity</strong> penalty.</p>
+          <p>We also investigated 2:4 structured sparsity (magnitude pruning) in C2, but it led to a catastrophic perplexity explosion (+6320%), causing us to veto sparse-kernel investments. This journey demonstrates that engineering an efficient local runtime is not just about raw CUDA optimization, but also about maintaining mathematical correctness under compression.</p>
+
+          <h3>Dynamic Layer-Masking & early-exit Policies</h3>
+          <p>A key structural component of Myelin is the dynamic exit policy. We evaluated two primary modes of early-exit topographies:</p>
+          <ol>
+            <li><strong>Residual Saturation Exit:</strong> Decided causally per token when <code>residual_delta_norm &lt; &tau;</code>. While this provides 15–20% compute savings at light budgets (PPL 18.7 vs 18.2), it degrades at heavier ratios due to its contiguous-suffix topographies.</li>
+            <li><strong>Hybrid v2 Exit (ADR-0008):</strong> Decouples the decision: *how many* layers to skip is dynamic, but *which* layers to skip is governed by the pre-calibrated biomimetic importance ranking. This policy guarantees optimal perplexity values and prevents dynamic drops from falling below the static optimum floor.</li>
+          </ol>
+          <p>The lessons from the Myelin CUDA journey show that modern LLM runtimes are heavily bound by memory access patterns, warp-level instruction selection, and mathematical representation targets. By addressing these systematically, we can run high-quality local models at speeds matching or exceeding cloud APIs on consumer-grade hardware.</p>
+        </>
+      )
     }
   ]
 
   return (
     <div class="container">
+      {/* Persistent Floating Cards Container */}
+      <div class="float-cards-container">
+        {/* Axiom Card */}
+        <a 
+          href="https://axiom.quacomes.com/en/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="float-card"
+        >
+          <div class="float-card-header">
+            <img src="/axiom-logo.svg" alt="Axiom Logo" class="float-card-logo" />
+            <span class="float-card-title">Axiom</span>
+          </div>
+          <p class="float-card-desc">
+            Small devices, big results.
+          </p>
+        </a>
+
+        {/* Myelin Card */}
+        <a 
+          href="https://myelin.firattunaarslan.me/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="float-card"
+        >
+          <div class="float-card-header">
+            <img src="/myelin-logo.svg" alt="Myelin Logo" class="float-card-logo" />
+            <span class="float-card-title">Myelin</span>
+          </div>
+          <p class="float-card-desc">
+            An exploration into local-first AI independence, memory bandwidth optimization, and resource-constrained inference.
+          </p>
+        </a>
+      </div>
       {/* Scroll Progress Bar for Reader View */}
       <Show when={route().primary === 'writings' && route().secondary !== null}>
         <div 
