@@ -12,7 +12,7 @@ import AboutOverlay from "./AboutOverlay";
 import ContactStars from "./ContactStars";
 import HubLabel from "./HubLabel";
 import JourneyMap, { updateJourneyMap } from "./JourneyMap";
-import LoadingDust from "./LoadingDust";
+import LoadingMark from "./LoadingMark";
 import ProjectCard from "./ProjectCard";
 import StaticJourney from "./StaticJourney";
 
@@ -282,7 +282,7 @@ export default function SceneCanvas() {
         aria-hidden
         className={`fixed inset-0 block h-full w-full transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`}
       />
-      <LoadingDust done={ready} />
+      <LoadingMark done={ready} />
       <JourneyMap ref={journeyRef} />
 
       {/* The scroll track: its height is the length of the journey, loop included. */}

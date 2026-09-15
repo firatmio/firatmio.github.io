@@ -18,10 +18,16 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
+const description =
+  "Artificial Intelligence Engineering student & software developer — systems programming, AI integrations and modern web.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://firattunaarslan.me"),
   title: "Fırat Tuna Arslan",
-  description:
-    "Artificial Intelligence Engineering student & software developer — systems programming, AI integrations and modern web.",
+  description,
+  // The share image is the opening signature itself (opengraph-image.png, captured from the scene).
+  openGraph: { type: "website", url: "/", siteName: "Fırat Tuna Arslan", title: "Fırat Tuna Arslan", description },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

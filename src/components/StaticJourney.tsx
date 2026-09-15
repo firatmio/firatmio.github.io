@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { about } from "@/content/about";
 import { contacts } from "@/content/contact";
 import { projects } from "@/content/projects";
+import LogoMark from "./LogoMark";
 
 function SectionTitle({ id, children }: { id: string; children: ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export default function StaticJourney() {
 
       <div className="relative mx-auto max-w-3xl px-6 pt-20 pb-16 md:pt-28">
         <header>
+          <LogoMark className="mb-8 size-12 text-ink" />
           <h1 className="font-(family-name:--font-fraunces) text-5xl font-light tracking-tight text-ink md:text-7xl">
             {about.name}
           </h1>

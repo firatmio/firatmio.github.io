@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { SIGNATURE_WEIGHT, signatureFontFamily } from "@/webgl/fonts";
 import { supportsWebGL2 } from "@/webgl/quality";
 import type { SignatureScene } from "@/webgl/signature/SignatureScene";
-import LoadingDust from "./LoadingDust";
+import LoadingMark from "./LoadingMark";
 
 /** The journey's opening signature on its own, spelling `text` in the same luminous dust. */
 export default function SignatureCanvas({ text }: { text: string }) {
@@ -60,7 +60,7 @@ export default function SignatureCanvas({ text }: { text: string }) {
         aria-hidden
         className={`fixed inset-0 block h-full w-full transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`}
       />
-      <LoadingDust done={ready} />
+      <LoadingMark done={ready} />
     </>
   );
 }
