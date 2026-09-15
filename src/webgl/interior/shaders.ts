@@ -80,6 +80,8 @@ export const interiorVertexShader = /* glsl */ `
     gl_PointSize = min(sprite, 128.0);
     vColor = aColor;
     vBright = aBright * glow * energy * smoothstep(0.05, 0.3, dist) * uPresence;
+    // Faded out at the lens: nothing to see, so don't rasterise it (see the particle field).
+    if (vBright < 1e-4) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     vSeed = aSeed;
   }
 `;

@@ -20,11 +20,11 @@ function Detail({ children }: { children: ReactNode }) {
 /** One beat of the About stop; `--beat-N` (-1 → 0 → 1) on the section drives it. */
 function Beat({ index, children }: { index: number; children: ReactNode }) {
   return (
-    <div
-      className="about-beat absolute inset-0 flex items-end md:items-center"
-      style={{ "--v": `var(--beat-${index}, -1)` } as CSSProperties}
-    >
-      <div className="max-w-2xl">{children}</div>
+    <div className="absolute inset-0 flex items-end md:items-center">
+      {/* The fade and drift sit on the text itself, so its layer is only as big as the text. */}
+      <div className="about-beat max-w-2xl" style={{ "--v": `var(--beat-${index}, -1)` } as CSSProperties}>
+        {children}
+      </div>
     </div>
   );
 }

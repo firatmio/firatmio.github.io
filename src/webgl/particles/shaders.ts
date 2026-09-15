@@ -222,6 +222,10 @@ export const particleVertexShader = /* glsl */ `
     // until the desert lifts it again. Near the lens the grains stay soft and let light
     // through, like out-of-focus dust.
     vSolid = toSand * toSand * toSand * (1.0 - toDesert) * (1.0 - toReturn) * smoothstep(1.0, 2.2, dist);
+    // Nothing left to see — faded out at the lens, or swallowed by the About neuron — and
+    // nothing to cover: don't rasterise it at all. Near the lens these are the scene's
+    // largest sprites, each one filling a good part of the screen for no light at all.
+    if (vBright < 1e-4 && vSolid < 1e-3) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
   }
 `;
 

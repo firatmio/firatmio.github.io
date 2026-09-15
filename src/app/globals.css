@@ -91,17 +91,23 @@ body {
 
   /* Scroll-driven: --v is -1 before a beat, 0 while it's shown, 1 once it has passed —
      beats rise in from below and drift up and away. */
+  /* Scroll-driven overlays get their own compositor layers (will-change): the scroll fades
+     and moves them every frame, and without a layer each change would repaint them —
+     the beats' large text with its soft 24px shadow is costly to repaint on a phone. */
   .about-beat {
     opacity: calc(1 - max(var(--v), calc(var(--v) * -1)));
     translate: 0 calc(var(--v) * -32px);
+    will-change: opacity, transform, translate;
   }
 
   .about-scrim {
     opacity: var(--reveal);
+    will-change: opacity;
   }
 
   .contact-stars {
     opacity: var(--reveal);
+    will-change: opacity;
   }
 
   @media (max-width: 767px) {
