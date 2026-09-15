@@ -109,6 +109,22 @@ export const particleVertexShader = /* glsl */ `
     float e = toLogo;
     p = mix(p, (1.0 - e) * (1.0 - e) * p + 2.0 * (1.0 - e) * e * seedAt + e * e * logoAt, inLogo);
 
+    // Pushed on past them, the logos burst one after another, like fireworks: a flash, then
+    // their stars flung out in a shell that slows as it spreads and fades to dust.
+    float burstT = clamp((uProgress - LOOP_EXPLODE_START) / (LOOP_EXPLODE_END - LOOP_EXPLODE_START), 0.0, 1.0);
+    float burstAge = inLogo * clamp((burstT - float(cell) * 0.12 - fract(aSeed * 17.9) * 0.05) / 0.5, 0.0, 1.0);
+    float fly = 1.0 - pow(1.0 - burstAge, 3.0);
+    float flash = burstAge > 0.0 ? exp(-burstAge * 7.0) : 0.0;
+    vec3 jitter = vec3(hash11(aSeed * 13.1), hash11(aSeed * 7.7), hash11(aSeed * 3.3)) - 0.5;
+    vec3 shell = normalize(normalize(logoAt - seedAt + 1e-4) * 0.9 + jitter * 1.6);
+    float reach = length(uLogoAxisU) * (0.25 + 0.55 * hash11(aSeed * 29.3));
+    p += (shell * fly - normalize(uLogoAxisV) * 0.15 * fly * fly) * reach * inLogo;
+
+    // Then all of it — the logos' dust, the sky, the dunes — drifts back into the
+    // signature, and the journey begins again from the top.
+    float toReturn = stageBlend(LOOP_GATHER_START, LOOP_END, fract(aSeed * 31.7));
+    p = mix(p, sig, toReturn) + scatter * sin(3.14159265 * toReturn) * 2.2;
+
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
@@ -141,6 +157,8 @@ export const particleVertexShader = /* glsl */ `
     // In a logo each star twinkles on its own beat; the logo under the pointer brightens.
     float logoTwinkle = 0.8 + 0.2 * sin(uTime * (0.9 + aSeed * 2.0) + aSeed * 70.0);
     glow = mix(glow, logoTwinkle * (1.0 + 0.6 * uLogoGlow[cell]), toLogo);
+    // The burst: a white-hot flash, then the flung stars dim to dust.
+    glow *= (1.0 + 4.0 * flash) * (1.0 - 0.65 * smoothstep(0.3, 1.0, burstAge));
 
     float sigBright = aPosSig.w;
     float sigSize = signatureSize(sigBright, aSeed);
@@ -150,6 +168,8 @@ export const particleVertexShader = /* glsl */ `
     float tissueSize = mix(sigSize, aSize * grow, toNetwork);
     float worldSize = mix(mix(tissueSize, aSand.w, toSand), aDesert.w, toDesert);
     worldSize = mix(worldSize, uLogoGrain * (0.8 + 0.4 * fract(aSeed * 5.1)), toLogo);
+    worldSize *= 1.0 + 1.5 * flash;
+    worldSize = mix(worldSize, sigSize, toReturn);
     float size = worldSize * uSizeScale * uPixelRatio / dist;
 
     // Keep sub-pixel points from shimmering: clamp the sprite but conserve energy.
@@ -162,17 +182,21 @@ export const particleVertexShader = /* glsl */ `
     vColor = mix(mix(mix(tissueColor, aStar.rgb, toGalaxy), aSand.rgb, toSand), aDesert.rgb, toDesert);
     // Each logo in its platform's own colours (brightness baked into the palette).
     vColor = mix(vColor, uLogoPalette[int(max(logoTone - 1.0, 0.0))], toLogo);
+    vColor = mix(vColor, vec3(1.0, 0.95, 0.88), flash * 0.8);
+    vColor = mix(vColor, sigColor, toReturn);
     // Sand, dunes and night-sky stars carry their lighting in their colour.
     float tissueBright = mix(sigBright, aBright, toNetwork);
     float intensity = mix(tissueBright * mix(1.0, aStar.w, toGalaxy), 1.0, max(toSand, toDesert)) * glow;
+    // Back in the signature, exactly as the journey began — so the jump to the top is seamless.
+    intensity = mix(intensity, sigBright * sigGlow, toReturn);
     vBright = intensity * energy * depthFade(dist) * focusLight(position) * enclosureDim(p) * (1.0 - swell.w);
     vSeed = aSeed;
     // Grains on the ground stay solid; grains that rose into the sky glow again as stars.
-    vGrain = toSand * (1.0 - toDesert * isSky);
+    vGrain = toSand * (1.0 - toDesert * isSky) * (1.0 - toReturn);
     // Settled sand is solid matter: it hides what lies behind it — once a grain has landed,
     // until the desert lifts it again. Near the lens the grains stay soft and let light
     // through, like out-of-focus dust.
-    vSolid = toSand * toSand * toSand * (1.0 - toDesert) * smoothstep(1.0, 2.2, dist);
+    vSolid = toSand * toSand * toSand * (1.0 - toDesert) * (1.0 - toReturn) * smoothstep(1.0, 2.2, dist);
   }
 `;
 

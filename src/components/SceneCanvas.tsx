@@ -1,7 +1,5 @@
 "use client";
 
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 import { projects } from "@/content/projects";
 import { QUACOMES_LOGO } from "@/content/quacomes-logo";
@@ -9,19 +7,24 @@ import type { Experience, ExperienceCallbacks, HubAnchor } from "@/webgl/Experie
 import { SIGNATURE_WEIGHT, signatureFontFamily } from "@/webgl/fonts";
 import { smoothstep } from "@/webgl/math";
 import { supportsWebGL2 } from "@/webgl/quality";
-import { aboutBeats, aboutReveal, contactReveal } from "@/webgl/stages";
+import { LOOP, aboutBeats, aboutReveal, contactReveal } from "@/webgl/stages";
 import AboutOverlay from "./AboutOverlay";
 import ContactStars from "./ContactStars";
 import HubLabel from "./HubLabel";
+import JourneyMap, { updateJourneyMap } from "./JourneyMap";
+import LoadingDust from "./LoadingDust";
 import ProjectCard from "./ProjectCard";
 import StaticJourney from "./StaticJourney";
 
 /** How far the screen's shape may drift from the one the scene was laid out for before it's rebuilt. */
 const RELAYOUT_ASPECT = 1.15;
+/** Seconds for the eased journey to close ~63% of the gap to where the scroll is. */
+const SCROLL_EASE = 0.35;
+/** Css px short of the bottom that an upward loop lands on. */
+const SEAM_GAP = 8;
 
 export default function SceneCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const signatureHintRef = useRef<HTMLParagraphElement>(null);
   const contactRef = useRef<HTMLElement>(null);
@@ -36,6 +39,9 @@ export default function SceneCanvas() {
   const [fallback, setFallback] = useState(false);
   /** Bumped to rebuild the scene, on a fresh canvas, when the screen changes shape. */
   const [layout, setLayout] = useState(0);
+  /** The scene's first frame is drawn — it fades in, the loader out. */
+  const [ready, setReady] = useState(false);
+  const journeyRef = useRef<HTMLElement>(null);
   const selectedSlug = selected?.slug ?? null;
 
   useEffect(() => {
@@ -81,6 +87,7 @@ export default function SceneCanvas() {
         link.style.height = `${rect.height}px`;
       },
       onContextLost: () => setFallback(true),
+      onReady: () => setReady(true),
     };
 
     // Load three.js lazily so the HTML shell paints before the WebGL bundle arrives.
@@ -123,6 +130,7 @@ export default function SceneCanvas() {
         if (Math.abs(Math.log(aspect / experience.layoutAspect)) < Math.log(RELAYOUT_ASPECT)) return;
         setSelected(null);
         setHovered(null);
+        setReady(false);
         setLayout((n) => n + 1);
       }, 400);
     };
@@ -133,42 +141,104 @@ export default function SceneCanvas() {
     };
   }, []);
 
-  // Scroll is the timeline: ScrollTrigger scrubs a single 0..1 progress value, with a
-  // little lag so the camera eases after the wheel instead of jerking with it.
+  // Scroll is the timeline, eased so the camera trails the wheel instead of jerking with
+  // it. And it loops, both ways: past the end the dust gathers back into the signature and
+  // the page quietly jumps to the top — onto the very same frame — so scrolling on begins
+  // again; pushing up from the signature jumps to the bottom, and the loop runs backwards
+  // into the contact logos.
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track || fallback) return;
-    gsap.registerPlugin(ScrollTrigger);
-    const journey = { progress: 0 };
-    const ctx = gsap.context(() => {
-      gsap.to(journey, {
-        progress: 1,
-        ease: "none",
-        scrollTrigger: { trigger: track, start: "top top", end: "bottom bottom", scrub: 1.2 },
-        onUpdate: () => {
-          progressRef.current = journey.progress;
-          experienceRef.current?.setProgress(journey.progress);
-          // Written straight to the DOM — no React render per scroll frame.
-          const signatureHint = signatureHintRef.current;
-          if (signatureHint) signatureHint.style.opacity = String(1 - smoothstep(0, 0.02, journey.progress));
-          const contactSection = contactRef.current;
-          if (contactSection) {
-            const reveal = contactReveal(journey.progress);
-            contactSection.style.setProperty("--reveal", reveal.toFixed(3));
-            // Hidden entirely while faded out, so its links drop out of the tab order.
-            contactSection.style.visibility = reveal < 0.02 ? "hidden" : "visible";
-          }
-          const aboutSection = aboutRef.current;
-          if (aboutSection) {
-            aboutSection.style.setProperty("--reveal", aboutReveal(journey.progress).toFixed(3));
-            aboutBeats(journey.progress).forEach((beat, i) =>
-              aboutSection.style.setProperty(`--beat-${i}`, beat.toFixed(3)),
-            );
-          }
-        },
-      });
-    });
-    return () => ctx.revert();
+    if (fallback) return;
+    const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
+    const targetOf = () => {
+      const max = maxScroll();
+      return max > 0 ? (window.scrollY / max) * LOOP.end : 0;
+    };
+    let eased = targetOf();
+    // Each jump carries the eased position over the seam, so the frame stays where it was.
+    const wrapDown = () => {
+      window.scrollTo(0, 0);
+      eased -= LOOP.end;
+    };
+    const wrapUp = () => {
+      const max = maxScroll();
+      if (max <= SEAM_GAP) return;
+      // Just short of the very bottom, so the jump doesn't wrap straight back down.
+      window.scrollTo(0, max - SEAM_GAP);
+      eased += LOOP.end;
+    };
+
+    // At the top there's nowhere left to scroll, so read the intent itself: a wheel, a
+    // swipe or a key pushing upwards takes the loop backwards.
+    const atTop = () => window.scrollY <= 0;
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0 && atTop()) wrapUp();
+    };
+    let touchY = 0;
+    const onTouchStart = (event: TouchEvent) => {
+      touchY = event.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const y = event.touches[0]?.clientY ?? 0;
+      if (y - touchY > 12 && atTop()) wrapUp();
+      touchY = y;
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      const up = event.key === "ArrowUp" || event.key === "PageUp" || (event.key === " " && event.shiftKey);
+      if (up && atTop()) wrapUp();
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("keydown", onKeyDown);
+    let applied = -1;
+    let last = performance.now();
+    let frame = 0;
+
+    // Written straight to the DOM — no React render per scroll frame.
+    const apply = (progress: number) => {
+      if (Math.abs(progress - applied) < 1e-5) return;
+      applied = progress;
+      progressRef.current = progress;
+      experienceRef.current?.setProgress(progress);
+      updateJourneyMap(journeyRef.current, progress);
+      const signatureHint = signatureHintRef.current;
+      if (signatureHint) {
+        // Fading as the journey leaves the signature, and back as the loop returns to it.
+        const shown = Math.max(1 - smoothstep(0, 0.02, progress), smoothstep(LOOP.end - 0.02, LOOP.end, progress));
+        signatureHint.style.opacity = String(shown);
+      }
+      const contactSection = contactRef.current;
+      if (contactSection) {
+        const reveal = contactReveal(progress);
+        contactSection.style.setProperty("--reveal", reveal.toFixed(3));
+        // Hidden entirely while faded out, so its links drop out of the tab order.
+        contactSection.style.visibility = reveal < 0.02 ? "hidden" : "visible";
+      }
+      const aboutSection = aboutRef.current;
+      if (aboutSection) {
+        aboutSection.style.setProperty("--reveal", aboutReveal(progress).toFixed(3));
+        aboutBeats(progress).forEach((beat, i) => aboutSection.style.setProperty(`--beat-${i}`, beat.toFixed(3)));
+      }
+    };
+
+    const tick = (now: number) => {
+      const delta = Math.min((now - last) / 1000, 0.1);
+      last = now;
+      // The very bottom: close the loop.
+      const max = maxScroll();
+      if (max > SEAM_GAP && window.scrollY >= max - 1) wrapDown();
+      eased += (targetOf() - eased) * (1 - Math.exp(-delta / SCROLL_EASE));
+      apply(((eased % LOOP.end) + LOOP.end) % LOOP.end);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [fallback]);
 
   // The WebGL spotlight follows whichever card is open.
@@ -206,10 +276,21 @@ export default function SceneCanvas() {
 
   return (
     <>
-      <canvas key={layout} ref={canvasRef} aria-hidden className="fixed inset-0 block h-full w-full" />
+      <canvas
+        key={layout}
+        ref={canvasRef}
+        aria-hidden
+        className={`fixed inset-0 block h-full w-full transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`}
+      />
+      <LoadingDust done={ready} />
+      <JourneyMap ref={journeyRef} />
 
-      {/* The scroll track: its height is the length of the journey. */}
-      <div ref={trackRef} aria-hidden className="pointer-events-none relative h-[1300svh]" />
+      {/* The scroll track: its height is the length of the journey, loop included. */}
+      <div
+        aria-hidden
+        className="pointer-events-none relative"
+        style={{ height: `calc(${LOOP.end} * 1200svh + 100svh)` }}
+      />
 
       <p className="pointer-events-none fixed top-6 left-6 font-mono text-xs tracking-[0.2em] text-ink/60 uppercase">
         Fırat Tuna Arslan

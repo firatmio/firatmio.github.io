@@ -23,7 +23,7 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 - **Next.js** (App Router, TypeScript) — routing iskeleti, `/projects/[slug]` detay sayfaları için
 - **Three.js** — sahne/kamera/render yönetimi
 - **GLSL custom shader'lar** — parçacık deformasyonu, durumlar arası morph, glow
-- **GSAP + ScrollTrigger** — scroll progress'i kamera pozisyonuna ve shader uniform'larına (`uProgress`, `uTime`) bağlamak için
+- **Scroll sürücüsü** — kendi küçük döngümüz (`SceneCanvas`): scroll'u yumuşatıp `uProgress`'e bağlar ve döngüseldir, sonda sessizce başa sarar. (Başta GSAP ScrollTrigger'dı; scrub'ı başa sarmayı bilmediği için kaldırıldı.)
 - **postprocessing / Three.js `EffectComposer`** — bloom (nöron/yıldız parlaklığı)
 - **simplex-noise** (npm) — organik pozisyon üretimi
 - **Tailwind CSS** — UI katmanı (liquid glass card, metin overlay'leri)
@@ -53,8 +53,11 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 - **Tek parçacık sistemi, çoklu hedef pozisyon seti.** Ayrı sahneler kurmak yerine tek bir `InstancedMesh`/`Points` sistemi — imza, nöron haritası, beyin, evren, kum, gece çölü hepsi bu sistemin farklı hedef pozisyon dizileri. Scroll progress'e göre pozisyonlar arası interpolasyon/blend yapılır.
 - **Işık ve örtme:** Parçacıklar toplamalı parlar; tek istisna kum durumu — yere oturmuş taneler opaktır ve arkalarını örter (premultiplied "over" karışımı + kum kamerasına göre uzaktan yakına çizim sırası). Böylece kumdaki Quacomes logosu fiziksel bir cisim gibi okunur.
+- **Yolculuk haritası (`JourneyMap`):** Sağ altta soluk bir nöron dalı — her düğüm bir durak, kaydırdıkça lif boyunca bir sinyal ilerler, bulunulan durak yanar; düğüme tıklamak oraya kaydırır. Bilerek etiketsiz ve dolaylı: hedef kitle hazıra alışık olmayan, merak edip çözen ziyaretçiler. Görünür etiket/menü EKLENMEYECEK (ekran okuyucular için adlar var).
+- **Yükleme:** Sahne hazırlanırken ortada kendi ritimlerinde nabız atan birkaç toz zerresi (`LoadingDust`); ilk kare çizilince söner, sahne yumuşakça belirir.
 - **404 sayfası:** Açılıştaki imza sahnesi tek başına (`SignatureScene`): aynı ışıklı toz, pahlı harfler, imleç izi, salınım ve paralaks — "404" yazar. Harf üretimi, imza GLSL'i (`signature/glsl.ts`), efekt zinciri (`postprocessing.ts`) ve kamera (`VIEW`) yolculukla ortak; ikisi birbirinden ayrışmamalı.
-- **Kamera:** Scroll'a bağlı, ease eğrileriyle hareket eden tek bir path. GSAP ScrollTrigger `scrub` ile senkronize.
+- **Kamera:** Scroll'a bağlı, ease eğrileriyle hareket eden tek bir path; yumuşatılmış scroll ile senkronize.
+- **Sonsuz döngü:** Progress 0..`LOOP.end` (1.14). İletişim logolarından sonra kaydırmaya devam edilirse logolar havai fişek gibi sırayla patlar, ardından tüm toz "FTA" imzasında toplanır; `LOOP.end`'deki kare açılıştakiyle birebir aynıdır ve sayfa sessizce en üste döner. Yukarı yönde de çalışır: en üstte yukarı kaydırma niyeti (tekerlek, parmak, ↑/PageUp) sayfayı dibin hemen üstüne atar ve döngü geriye işler — toz çözülür, logolar yeniden toplanır. Dikişin görünmez kalması için imza, kamera, pus, ufuk parıltısı ve paralaks sonda açılış değerlerine döner — bunlara dokunurken iki ucu birlikte düşün.
 - **Gece çölü de aynı parçacık sisteminin bir durumu** — kumullar, savrulan kum ve yıldızlar ayrı sahne değil; `uTime` bazlı sürekli animasyon. Tek yardımcı alt-sistem ufuktaki hafif gökyüzü parıltısı. (Tanelerin altına kesintisiz bir kumul yüzeyi denendi, beğenilmedi; doluluk tanelerin kendisinden gelmeli.)
 - **Performans:** Shader hesaplamaları GPU'da olmalı, CPU'da parçacık pozisyonu hesaplanmamalı. Parçacık sayısı cihaz/ekran boyutuna göre ölçeklenir (`detectQuality`: 24k / 45k / 70k). Kare hızı düşerse `ResolutionGovernor` çözünürlüğü kademeli düşürür, toparlanınca geri yükseltir (parçacık sayısı sabit). Hedefler yüklenirken ekran oranına göre kurulur; oran %15'ten fazla değişirse (telefonu döndürme) sahne yeni bir canvas'ta yeniden kurulur. WebGL 2 yoksa, sahne başlatılamazsa ya da GPU bağlamı kaybolursa aynı içerik düz bir sayfa olarak gösterilir (`StaticJourney`).
 
@@ -72,6 +75,12 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 | lofi-pomodoro | 2025 | Rust/Tauri ile minimalist masaüstü pomodoro zamanlayıcısı. | Rust, Tauri, TypeScript, Tailwind CSS |
 | OmniSketch | 2024 | Vektör tabanlı minimalist çizim tahtası. | TypeScript, HTML5 Canvas, Vanilla CSS |
 | Filmbox Promo | 2025 | Next.js 15 / React 19 ile film keşif platformu. | Next.js 15, React 19, Tailwind CSS, TMDB API |
+| mcp-audit | 2026 | MCP sunucuları için şeffaf denetim proxy'si: her araç çağrısını kaydeder, tool poisoning ve rug pull tespit eder. Tek Go binary. | Go, MCP, AI Security |
+| LinkUp | 2026 | LAN üzerinde şifreli QUIC ile sohbet ve dosya aktarımı; doğrulama koduyla eşleştirme. | Rust, Tauri 2, QUIC, React 19 |
+| Groove | 2026 | "The web, as it was meant to be." — açık geliştirilen, kimsenin sahibi olmadığı tarayıcı. | C#, WinUI 3, WebView2 |
+| VAD | 2026 | Hazır model olmadan, sinyal işlemeyle sıfırdan konuşma algılama. | Python, Signal Processing, NumPy |
+
+Projelerin ayrıntıları ve linkleri herkese açık GitHub repolarından (github.com/firatmio) alınır; uydurma içerik eklenmez. Myelin ve Axiom'un herkese açık reposu yok.
 
 ### About (nöron-içi sahne içeriği)
 

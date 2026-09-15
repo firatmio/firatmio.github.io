@@ -4,10 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { SIGNATURE_WEIGHT, signatureFontFamily } from "@/webgl/fonts";
 import { supportsWebGL2 } from "@/webgl/quality";
 import type { SignatureScene } from "@/webgl/signature/SignatureScene";
+import LoadingDust from "./LoadingDust";
 
 /** The journey's opening signature on its own, spelling `text` in the same luminous dust. */
 export default function SignatureCanvas({ text }: { text: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  /** The first frame is drawn — the dust fades in, the loader out. */
+  const [ready, setReady] = useState(false);
   /** No WebGL here: the text is set in the signature's typeface instead. */
   const [failed, setFailed] = useState(false);
 
@@ -27,7 +30,7 @@ export default function SignatureCanvas({ text }: { text: string }) {
         return;
       }
       try {
-        scene = new SignatureScene(canvas, text);
+        scene = new SignatureScene(canvas, text, () => setReady(true));
       } catch (error) {
         console.warn("WebGL signature failed to start", error);
         setFailed(true);
@@ -50,5 +53,14 @@ export default function SignatureCanvas({ text }: { text: string }) {
       </p>
     );
   }
-  return <canvas ref={canvasRef} aria-hidden className="fixed inset-0 block h-full w-full" />;
+  return (
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden
+        className={`fixed inset-0 block h-full w-full transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`}
+      />
+      <LoadingDust done={ready} />
+    </>
+  );
 }

@@ -37,9 +37,32 @@ export function markInteractive(progress: number): boolean {
  */
 export const CONTACT_LOGOS = { start: STAGES.desert + 0.022, end: 0.972 } as const;
 
-/** Visibility of the contact logos' links as the logos finish forming, 0..1. */
+/**
+ * The journey's landmarks, for the map in the corner: where a click on each node carries
+ * the scroll. Deliberately unlabelled on screen — the map is there to be discovered.
+ */
+export const JOURNEY_STOPS = [
+  { name: "Signature", at: STAGES.signature },
+  { name: "Projects", at: STAGES.hero },
+  { name: "About", at: STAGES.enter },
+  { name: "Galaxy", at: STAGES.galaxy },
+  { name: "Quacomes", at: STAGES.sand },
+  { name: "Contact", at: STAGES.finale },
+] as const;
+
+/**
+ * Past the end the journey loops. Pushed on past the contact logos, they burst one after
+ * another; then all the dust gathers back into the signature, and at `end` — the same
+ * frame as the very start — the page quietly jumps back to the top. Progress runs 0..end.
+ */
+export const LOOP = { explodeStart: 1.008, explodeEnd: 1.06, gatherStart: 1.052, end: 1.14 } as const;
+
+/** Visibility of the contact logos' links while the logos stand formed, 0..1. */
 export function contactReveal(progress: number): number {
-  return smoothstep(CONTACT_LOGOS.end - 0.012, CONTACT_LOGOS.end + 0.008, progress);
+  return (
+    smoothstep(CONTACT_LOGOS.end - 0.012, CONTACT_LOGOS.end + 0.008, progress) *
+    (1 - smoothstep(LOOP.explodeStart - 0.004, LOOP.explodeStart + 0.004, progress))
+  );
 }
 
 /** The About text is told in this many beats while the camera rests inside the neuron. */

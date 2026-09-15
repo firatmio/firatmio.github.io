@@ -83,6 +83,7 @@ export class SignatureScene {
   /** Idle animation is frozen for visitors who asked for reduced motion. */
   private readonly timeScale: number;
   private frame = 0;
+  private rendered = false;
   private lastTime = 0;
   private elapsed = 0;
 
@@ -97,6 +98,8 @@ export class SignatureScene {
   constructor(
     private readonly canvas: HTMLCanvasElement,
     text: string,
+    /** Called once the first frame has been drawn. */
+    private readonly onReady?: () => void,
   ) {
     const quality = detectQuality();
     this.pixelRatio = quality.pixelRatio;
@@ -251,6 +254,10 @@ export class SignatureScene {
 
     this.material.uniforms.uTime.value = this.elapsed;
     this.composer.render(delta);
+    if (!this.rendered) {
+      this.rendered = true;
+      this.onReady?.();
+    }
     this.frame = requestAnimationFrame(this.tick);
   };
 }

@@ -11,7 +11,7 @@ import { detectQuality, ResolutionGovernor } from "./quality";
 import { buildInterior } from "./interior/buildInterior";
 import { NeuronInterior } from "./interior/NeuronInterior";
 import { clamp01, smoothstep } from "./math";
-import { CONTACT_LOGOS, STAGES, heroInteractive, interiorPresence, markInteractive } from "./stages";
+import { LOOP, STAGES, contactReveal, heroInteractive, interiorPresence, markInteractive } from "./stages";
 import { ParticleField } from "./particles/ParticleField";
 import { generateNeuronMap, type NeuronHub } from "./particles/targets/neuron";
 import { tissueDrift, type Enclosure } from "./shaders/common";
@@ -53,6 +53,8 @@ export interface ExperienceCallbacks {
   onMarkFrame?(rect: ScreenRect | null): void;
   /** The GPU dropped the WebGL context — the scene can't go on. */
   onContextLost?(): void;
+  /** The first frame has been drawn. */
+  onReady?(): void;
 }
 
 /** A box on screen, in css px relative to the canvas. */
@@ -74,6 +76,7 @@ export class Experience {
   /** Corners of the Quacomes mark standing on the sand. */
   private readonly markCorners: [number, number, number][];
   private markShown = false;
+  private rendered = false;
 
   private readonly composer: EffectComposer;
   private readonly skyGlow = new SkyGlow();
@@ -182,6 +185,10 @@ export class Experience {
       // Up from the grains: the dunes spread out below and the sky opens above.
       { at: STAGES.desert, position: new Vector3(...DESERT.camera), target: new Vector3(...DESERT.target) },
       { at: STAGES.finale, position: new Vector3(...DESERT.finaleCamera), target: new Vector3(...DESERT.finaleTarget) },
+      // Pushed on, the camera eases back a little as the logos burst…
+      { at: LOOP.explodeEnd, position: new Vector3(0.15, -0.95, 6.6), target: new Vector3(...DESERT.finaleTarget) },
+      // …then settles where the journey began, as the dust gathers into the signature.
+      { at: LOOP.end, position: new Vector3(0, 0, VIEW.signatureZ), target: new Vector3(0, 0, 0) },
     ]);
 
     const warp = createBrainWarp({
@@ -358,7 +365,7 @@ export class Experience {
 
   /** Report where the contact logos stand on screen, so their links can be laid over them. */
   private projectContacts(): void {
-    if (!this.callbacks.onContactFrame || this.progress < CONTACT_LOGOS.end - 0.02) return;
+    if (!this.callbacks.onContactFrame || contactReveal(this.progress) <= 0) return;
     this.callbacks.onContactFrame(this.contactLogos.map((corners) => this.screenRect(corners)));
   }
 
@@ -449,8 +456,11 @@ export class Experience {
     this.pointerPresence += (this.pointerPresenceTarget - this.pointerPresence) * trail;
     // Mouse parallax on the opening screens: the camera leans after the cursor, so dust at
     // different depths slides past at different rates.
+    // (It fades back in as the loop returns to the signature, so the seam doesn't jolt.)
     const parallax =
-      (1 - smoothstep(STAGES.hero + 0.02, STAGES.approach, this.progress)) * this.pointerPresence * this.timeScale;
+      (1 - smoothstep(STAGES.hero + 0.02, STAGES.approach, this.progress) + smoothstep(LOOP.gatherStart, LOOP.end, this.progress)) *
+      this.pointerPresence *
+      this.timeScale;
     this.camera.position.x += this.pointer.x * 0.45 * parallax;
     this.camera.position.y += this.pointer.y * 0.28 * parallax;
     this.camera.lookAt(this.lookTarget);
@@ -467,7 +477,10 @@ export class Experience {
     this.trail.update(delta, stirring ? this.pointerWorld : null);
     // Haze sets in just beyond whatever the camera is looking at.
     // Out in the desert the sky is hundreds of units away: lift the haze off it entirely.
-    const desert = smoothstep(STAGES.sand + 0.015, STAGES.desert, this.progress);
+    // Settling back into the haze of the opening as the loop returns to the signature.
+    const desert =
+      smoothstep(STAGES.sand + 0.015, STAGES.desert, this.progress) *
+      (1 - smoothstep(LOOP.gatherStart, LOOP.end, this.progress));
     const hazeStart = Math.max(subjectDistance - 1, desert * 1000);
     this.skyGlow.update(desert);
 
@@ -491,6 +504,10 @@ export class Experience {
     this.projectContacts();
     this.projectMark();
     this.composer.render(delta);
+    if (!this.rendered) {
+      this.rendered = true;
+      this.callbacks.onReady?.();
+    }
     this.frame = requestAnimationFrame(this.tick);
   };
 }

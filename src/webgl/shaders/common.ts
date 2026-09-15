@@ -1,6 +1,6 @@
 import type { Vector3 } from "three";
 import { DESERT, GALAXY } from "../layout";
-import { CONTACT_LOGOS, STAGES } from "../stages";
+import { CONTACT_LOGOS, LOOP, STAGES } from "../stages";
 
 const glslFloat = (value: number) => value.toFixed(4);
 const glslVec3 = (v: readonly number[]) => `vec3(${v.map(glslFloat).join(", ")})`;
@@ -32,6 +32,11 @@ export const glslCommon = /* glsl */ `
   // Over the last stretch the closing sky's stars gather into the contact logos.
   const float LOGO_MORPH_START = ${glslFloat(CONTACT_LOGOS.start)};
   const float LOGO_MORPH_END = ${glslFloat(CONTACT_LOGOS.end)};
+  // Past them the logos burst, and all the dust gathers back into the signature.
+  const float LOOP_EXPLODE_START = ${glslFloat(LOOP.explodeStart)};
+  const float LOOP_EXPLODE_END = ${glslFloat(LOOP.explodeEnd)};
+  const float LOOP_GATHER_START = ${glslFloat(LOOP.gatherStart)};
+  const float LOOP_END = ${glslFloat(LOOP.end)};
   const vec3 DESERT_WIND = ${glslVec3(DESERT.wind)};
 
   const vec3 GALAXY_CENTER = ${glslVec3(GALAXY.center)};

@@ -11,6 +11,8 @@
 html {
   color-scheme: dark;
   background: var(--color-void);
+  /* Firefox — the jump back to the top at the journey's loop stays unseen there too. */
+  scrollbar-width: none;
 }
 
 body {

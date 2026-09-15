@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LuArrowLeft, LuArrowRight } from "react-icons/lu";
+import { LuArrowLeft, LuArrowRight, LuArrowUpRight } from "react-icons/lu";
 import { projects } from "@/content/projects";
 
 // Only the projects in the network exist; any other slug is a 404.
@@ -57,6 +57,45 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
           {project.title}
         </h1>
         <p className="mt-8 max-w-2xl text-lg leading-relaxed text-pretty text-ink/80 md:text-xl">{project.summary}</p>
+
+        {project.story?.map((paragraph) => (
+          <p key={paragraph.slice(0, 32)} className="mt-6 max-w-2xl leading-relaxed text-pretty text-ink/70">
+            {paragraph}
+          </p>
+        ))}
+
+        {project.highlights && (
+          <ul className="mt-8 max-w-2xl space-y-3">
+            {project.highlights.map((highlight) => (
+              <li key={highlight} className="flex gap-3 leading-relaxed text-ink/75">
+                <span aria-hidden className="mt-2.5 size-1 shrink-0 rounded-full bg-ember/80" />
+                {highlight}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {project.links && (
+          <ul className="mt-10 flex flex-wrap gap-3">
+            {project.links.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 font-mono text-xs tracking-[0.14em] text-ink/80 uppercase transition-colors hover:border-white/35 hover:text-ink"
+                >
+                  {link.label}
+                  <LuArrowUpRight
+                    aria-hidden
+                    className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    strokeWidth={1.5}
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
 
         <section aria-labelledby="stack-title" className="mt-14">
           <h2 id="stack-title" className="font-mono text-[11px] tracking-[0.18em] text-ink/50 uppercase">
