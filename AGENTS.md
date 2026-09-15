@@ -2,7 +2,7 @@
 
 ## Proje özeti
 
-`firattunaarslan.me` — Fırat Tuna Arslan'ın kişisel portfolyo sitesi. Tek sayfalık, sürekli kamera yolculuğu şeklinde sinematik bir WebGL deneyimi. Scroll = zaman ekseni. Kullanıcı bir nöron ağının içinden geçip beyne, oradan evrene, oradan bir sahile yolculuk yapıyor. Proje detayları ve "About" bilgisi bu yolculuğun duraklarına gömülü.
+`firattunaarslan.me` — Fırat Tuna Arslan'ın kişisel portfolyo sitesi. Tek sayfalık, sürekli kamera yolculuğu şeklinde sinematik bir WebGL deneyimi. Scroll = zaman ekseni. Kullanıcı bir nöron ağının içinden geçip beyne, oradan evrene, oradan kuma ve yıldızların altındaki bir gece çölüne yolculuk yapıyor. Proje detayları ve "About" bilgisi bu yolculuğun duraklarına gömülü.
 
 Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir yer tutucuydu ve tamamen kaldırılıyor.
 
@@ -14,7 +14,7 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 - **Düz çizgi yok.** Nöron bağlantıları (synapse) bezier eğrisi, sinir lifi gibi kavis almalı — asla düz segment değil.
 - **Homojen değil.** Nöron boyut/parlaklığı eşit dağılmamalı — gerçek projeler (hub) büyük/parlak, dekoratif/trivia node'lar küçük/soluk.
 - **Hareket nefes alır gibi.** Idle animasyonlar düzensiz-fazlı (her nöron farklı zamanlama ile pulse eder, hepsi senkron değil). Kamera hareketi lineer değil, ease eğrileriyle organik hızlanma/yavaşlama.
-- **Geçişlerin çoğu yumuşak interpolasyon — SADECE bir istisna var:** Evren/yıldız sahnesinden kum/sahil sahnesine geçiş **sert kesiş (hard cut)** olmalı, crossfade değil.
+- **Tüm geçişler yumuşak interpolasyon.** Sert kesiş (hard cut) yok — evren → kum → gece çölü dahil. (İlk plandaki evren→sahil hard cut'ı denendi; kopuk hissettirdiği için kaldırıldı.)
 
 ---
 
@@ -22,7 +22,7 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 - **Next.js** (App Router, TypeScript) — routing iskeleti, `/projects/[slug]` detay sayfaları için
 - **Three.js** — sahne/kamera/render yönetimi
-- **GLSL custom shader'lar** — parçacık deformasyonu, ocean wave (Gerstner), kum noise-displacement, glow
+- **GLSL custom shader'lar** — parçacık deformasyonu, durumlar arası morph, glow
 - **GSAP + ScrollTrigger** — scroll progress'i kamera pozisyonuna ve shader uniform'larına (`uProgress`, `uTime`) bağlamak için
 - **postprocessing / Three.js `EffectComposer`** — bloom (nöron/yıldız parlaklığı)
 - **simplex-noise** (npm) — organik pozisyon üretimi
@@ -34,14 +34,15 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 | # | Sahne | Tetikleyici | İçerik |
 |---|-------|-------------|--------|
-| 1 | Nöron haritası (hero) | Yüklenince | Ekranı kaplayan organik nöron ağı. Her proje = bir nöron. Boşluk dolgusu için dekoratif/trivia nöronlar. |
+| 0 | İmza (FTA) | Yüklenince | Parçacıklar ışıklı tozdan, Fraunces fontunda "FTA" baş harflerini oluşturur: kameraya düz bakan, tek parça, kabartmalı (ışık-gölgeyle hacim veren) harfler — perspektif/katman yok. Fareyle etkileşim: imlecin geçtiği yerlerde harflerin taneleri sürükleme yönünde, düzensizce savrulur ve iz söndükçe yavaşça yerine döner (duran imleç delik açmaz); kamera hafif paralaks yapar. |
+| 1 | Nöron haritası (hero) | İlk scroll | İmza dağılır, parçacıklar ekranı kaplayan organik nöron ağına yerleşir. Her proje = bir nöron. Boşluk dolgusu için dekoratif/trivia nöronlar. |
 | — | Etkileşim | Tıklama | Proje-nöronuna tıklama → liquid glass card (özet + `/projects/[slug]` linki) |
 | 2 | Zoom-in | Scroll 1 | Kamera yaklaşır, harita büyür, detaylar netleşir |
 | 3 | Nöron içine giriş = About | Scroll 2 | Kamera bir nöronun içine girer, bio/skills/background gösterilir |
 | 4 | Zoom-out → beyin dokusu | Scroll 3 | Merkezi nöron küçülür, çevredeki diğer nöronlar görünür kalır |
 | 5 | Evren/yıldız kümesi | Scroll 4 | Aynı nokta deseni yıldız kümesi gibi okunur (nöron ≈ yıldız metaforu) |
-| 6 | Sıkışma → HARD CUT | Scroll 5 | Noktalar kum dokusuna sıkışır, ardından sert kesiş |
-| 7 | Sahil/deniz — kapanış + footer | Scroll son | Gerstner wave okyanus + rüzgarla hareket eden kum + atmosfer. Sahnenin son anı = footer/iletişim (ayrı bileşen değil, sahnenin kendisi bu işlevi taşır). |
+| 6 | Sıkışma → kum | Scroll 5 | Galaksi girdap gibi süzülüp yakın plan bir kum yüzeyine yerleşir (yumuşak geçiş). Kumun üstünde, yine tanelerden oluşan, kendi renklerinde (krem yazı, turuncu Q — quacomes.com koyu tema) bir Quacomes logosu fiziksel bir nesne gibi durur: kamera ona hafif yukarıdan bakar, kum arkasında da sürer ve harfler arkadaki kumu örter; logo kameraya düz bakar, kalınlığı sağa doğru eğik (klasik 3D yazı gibi) okunur, dibinde temas gölgesi var (dibine kum birikintisi denendi, kaide gibi durdu); alçak güneş gölgesini kuma düşürür. Logoya tıklayınca quacomes.com yeni sekmede açılır. |
+| 7 | Gece çölü — kapanış + footer | Scroll son | Kamera kum tanelerinden geri çekilir: ufka uzanan ay ışıklı kumullar, rüzgârın kretlerden savurduğu kum, gökte yeniden galaksi (Samanyolu); taneler yıldızlara yükselir. Dört parlak iletişim yıldızı (hero'daki proje nöronlarının aynası) çekirdek olur: son kaydırmada yıldızlar akıp onlara toplanır ve platform logolarını (LinkedIn, X, GitHub, e-posta) kendi marka renklerinde oluşturur — ortada gevşek bir 2×2, Samanyolu yerinde kalır. Her logo tıklanabilir, altında adı ve kullanıcı adı; üzerine gelinen logo parlar. Sahnenin son anı = footer/iletişim (ayrı bileşen değil, sahnenin kendisi bu işlevi taşır). |
 
 **Kapsam dışı (bilinçli olarak ekleniyor değil):** Yatay scroll ile kayan proje/yazı kart şeridi. İleride ayrı değerlendirilecek — şimdi eklenmeyecek.
 
@@ -49,9 +50,10 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 ## Mimari yaklaşım
 
-- **Tek parçacık sistemi, çoklu hedef pozisyon seti.** Ayrı sahneler kurmak yerine tek bir `InstancedMesh`/`Points` sistemi — nöron haritası, beyin, evren, kum hepsi bu sistemin farklı hedef pozisyon dizileri. Scroll progress'e göre pozisyonlar arası interpolasyon/blend yapılır.
+- **Tek parçacık sistemi, çoklu hedef pozisyon seti.** Ayrı sahneler kurmak yerine tek bir `InstancedMesh`/`Points` sistemi — imza, nöron haritası, beyin, evren, kum, gece çölü hepsi bu sistemin farklı hedef pozisyon dizileri. Scroll progress'e göre pozisyonlar arası interpolasyon/blend yapılır.
+- **Işık ve örtme:** Parçacıklar toplamalı parlar; tek istisna kum durumu — yere oturmuş taneler opaktır ve arkalarını örter (premultiplied "over" karışımı + kum kamerasına göre uzaktan yakına çizim sırası). Böylece kumdaki Quacomes logosu fiziksel bir cisim gibi okunur.
 - **Kamera:** Scroll'a bağlı, ease eğrileriyle hareket eden tek bir path. GSAP ScrollTrigger `scrub` ile senkronize.
-- **Deniz sahnesi ayrı bir alt-sistem** — Gerstner wave vertex shader + noise-displacement kum + `uTime` bazlı sürekli animasyon (tetikleyici gerekmez, açılır açılmaz canlı).
+- **Gece çölü de aynı parçacık sisteminin bir durumu** — kumullar, savrulan kum ve yıldızlar ayrı sahne değil; `uTime` bazlı sürekli animasyon. Tek yardımcı alt-sistem ufuktaki hafif gökyüzü parıltısı. (Tanelerin altına kesintisiz bir kumul yüzeyi denendi, beğenilmedi; doluluk tanelerin kendisinden gelmeli.)
 - **Performans:** Shader hesaplamaları GPU'da olmalı, CPU'da parçacık pozisyonu hesaplanmamalı. Parçacık sayısı cihaz/ekran boyutuna göre ölçeklenmeli (mobilde düşürülmüş sayı). Düşük FPS / WebGL desteklemeyen cihazlar için statik/video fallback düşünülmeli.
 
 ---
@@ -77,22 +79,22 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 **Skills:** Go, Rust, Python, TypeScript, JavaScript, SolidJS, React, Next.js, Tauri, PyTorch, FastAPI, PostgreSQL, Supabase, Docker
 
-### İletişim (deniz sahnesi / footer)
+### İletişim (gece çölü / footer — yıldızlardan oluşan tıklanabilir logolar)
 
 - LinkedIn: `/in/firattunaarslan`
 - X (Twitter): `@firattunaarslan`
 - GitHub: `@firatmio`
-- Email: *(henüz belirlenmedi)*
+- Email: `me@firattunaarslan.me`
 
 ---
 
 ## Yapılmaması gerekenler
 
 - Yatay scroll kart şeridi (Writings/çalışmalar özeti) EKLENMEYECEK — bilinçli olarak kapsam dışı bırakıldı
-- Deniz sahnesi ayrı bir footer bileşeni DEĞİL — sahnenin kendisi bu işlevi görüyor
+- Kapanış sahnesi (gece çölü) ayrı bir footer bileşeni DEĞİL — sahnenin kendisi bu işlevi görüyor
 - Kendi yüzü/fotoğrafı siteye KONULMAYACAK
 - Geometrik/matematiksel kusursuzluk (düzgün küre, simetrik grid, düz çizgi) KULLANILMAYACAK
-- Evren→kum geçişi dışında hiçbir sahne geçişinde sert kesiş kullanılmayacak — hepsi yumuşak interpolasyon
+- Hiçbir sahne geçişinde sert kesiş kullanılmayacak — hepsi yumuşak interpolasyon
 
 ---
 
@@ -105,9 +107,9 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 5. Scroll-kamera sistemi: GSAP ScrollTrigger, kamera path'i, uniform bağlantısı
 6. Sahne durumları arası interpolasyon (nöron → beyin → evren)
 7. About durağı: nöron-içi kamera girişi + içerik overlay
-8. Evren → kum sıkışması + hard cut geçişi
-9. Deniz sahnesi: Gerstner wave + kum noise + rüzgar + atmosfer
-10. Footer/iletişim katmanı deniz sahnesine entegrasyon
+8. Evren → kum sıkışması (yumuşak geçiş)
+9. Gece çölü: kumullar, rüzgârla savrulan kum, yıldızlı gök + atmosfer
+10. Footer/iletişim: tıklanabilir iletişim yıldızları
 11. Proje detay sayfaları (`/projects/[slug]`)
 12. Performans geçişi: mobil test, parçacık ölçekleme, fallback
 

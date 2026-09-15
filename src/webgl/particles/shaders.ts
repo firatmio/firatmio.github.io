@@ -1,0 +1,223 @@
+import { AddEquation, CustomBlending, OneFactor, OneMinusSrcAlphaFactor } from "three";
+import { glslCommon } from "../shaders/common";
+import { LOGO_PALETTE_SIZE } from "./targets/desert";
+
+/**
+ * How particle fragments combine: premultiplied "over". A glowing point writes no alpha,
+ * so it only adds light; a settled sand grain writes its coverage, so it also hides what
+ * was drawn behind it (the field is drawn far to near from the sand camera — see
+ * ParticleField).
+ */
+export const particleBlending = {
+  blending: CustomBlending,
+  blendEquation: AddEquation,
+  blendSrc: OneFactor,
+  blendDst: OneMinusSrcAlphaFactor,
+} as const;
+
+export const particleVertexShader = /* glsl */ `
+  ${glslCommon}
+
+  attribute vec3 aColor;
+  // size, brightness, seed, contact-logo colour — packed into one slot: every scene state
+  // costs attributes, and GPUs only guarantee 16.
+  attribute vec4 aTraits;
+  #define aSize aTraits.x
+  #define aBright aTraits.y
+  #define aSeed aTraits.z
+  // 0 outside the contact logos, else its colour (uLogoPalette index + 1), +0.5 on a seed star.
+  #define aLogoTone aTraits.w
+  attribute vec4 aPulse;     // period (0 = free twinkle), phase, arbor position, reliability
+  attribute vec4 aPosSig;    // opening signature position (xyz), its brightness (w)
+  attribute vec3 aPosBrain;
+  attribute vec3 aPosGalaxy;
+  attribute vec4 aStar;      // galaxy colour (rgb), brightness/size boost (w)
+  attribute vec3 aPosSand;
+  attribute vec4 aSand;      // lit grain colour (rgb), grain size (w)
+  attribute vec4 aPosDesert; // xyz; w = its place in the contact logos, floor(u · 4095) + v
+  attribute vec4 aDesert;    // lit colour (rgb), world size (w)
+  attribute vec4 aMorph;     // wait before brain, galaxy, sand; w = desert kind + its wait
+
+  uniform float uTime;
+  uniform float uPixelRatio;
+  uniform float uSizeScale; // viewport height (css px) / (2 * tan(fov / 2))
+  uniform sampler2D uTrail;  // where the cursor has swept: intensity (r), swipe direction (gb)
+  uniform vec4 uTrailBounds; // world rect the trail covers: min x, min y, width, height
+  // The finale's contact logos stand on a plane: origin + axisU · u + axisV · v.
+  uniform vec3 uLogoOrigin;
+  uniform vec3 uLogoAxisU;
+  uniform vec3 uLogoAxisV;
+  uniform vec2 uLogoCells[4]; // each logo's middle (u, v): top left, top right, bottom left, bottom right
+  uniform vec3 uLogoPalette[${LOGO_PALETTE_SIZE}];
+  uniform float uLogoGrain;   // world size of a logo star
+  uniform float uLogoGlow[4]; // each logo's hover glow, eased in and out, 0..1
+
+  varying vec3 vColor;
+  varying float vBright;
+  varying float vSeed;
+  varying float vGrain;
+  varying float vSolid;
+
+  void main() {
+    // Letters dissolve roughly left to right, each particle on its own beat.
+    float sigDelay = fract(aSeed * 7.13) * 0.65 + clamp(aPosSig.x / 8.0 + 0.5, 0.0, 1.0) * 0.35;
+    float toNetwork = stageBlend(SIGNATURE_MORPH_START, STAGE_HERO, sigDelay);
+    float toBrain = stageBlend(STAGE_ABOUT, STAGE_BRAIN, aMorph.x);
+    float toGalaxy = stageBlend(GALAXY_MORPH_START, STAGE_GALAXY, aMorph.y);
+    float toSand = stageBlend(SAND_MORPH_START, STAGE_SAND, aMorph.z);
+    float desertKind = floor(aMorph.w);
+    float toDesert = stageBlend(DESERT_MORPH_START, STAGE_DESERT, fract(aMorph.w));
+    float isSky = step(0.5, desertKind) * (1.0 - step(1.5, desertKind));
+    float isDrift = step(1.5, desertKind);
+
+    // Signature: the dust shimmers in place. Where the cursor has swept, the letters' grains
+    // are flung along the stroke — each at its own angle and strength — and drift back as
+    // the trail fades.
+    vec3 sig = aPosSig.xyz + vec3(sin(uTime * 0.6 + aSeed * 31.0), cos(uTime * 0.5 + aSeed * 17.0), 0.0) * 0.012;
+    vec4 trail = texture2D(uTrail, (aPosSig.xy - uTrailBounds.xy) / uTrailBounds.zw);
+    // Only the letters answer, not the dust far behind them.
+    float onLetters = 1.0 - smoothstep(0.4, 0.8, abs(aPosSig.z - 0.1));
+    float disturbed = smoothstep(0.0, 1.0, trail.r) * onLetters;
+    vec2 swipe = length(trail.gb) > 1e-4 ? normalize(trail.gb) : vec2(0.0, 1.0);
+    float jolt = 0.4 + fract(aSeed * 13.7);
+    float veer = (fract(aSeed * 29.3) - 0.5) * 2.4;
+    vec2 fling = vec2(swipe.x * cos(veer) - swipe.y * sin(veer), swipe.x * sin(veer) + swipe.y * cos(veer));
+    sig.xy += fling * disturbed * jolt * 0.35;
+    sig.z += (fract(aSeed * 51.1) - 0.3) * disturbed * 0.3;
+
+    // The About neuron's swelling acts on the tissue itself, so its fibres stay attached.
+    vec4 swell = coreSwell(tissueState(position, aPosBrain, toBrain, uTime), uTime);
+    // On the first scroll the letters burst apart and settle into the network.
+    vec3 scatter = vec3(sin(aSeed * 23.0), cos(aSeed * 41.0), sin(aSeed * 67.0));
+    vec3 tissue = mix(sig, swell.xyz, toNetwork) + scatter * sin(3.14159265 * toNetwork) * 2.2;
+    vec3 star = rotateGalaxy(aPosGalaxy, uTime);
+    // Each particle takes its own detour on the long flight out — the fibres are gone by then.
+    vec3 detour = vec3(sin(aSeed * 43.0), cos(aSeed * 71.0), sin(aSeed * 19.0 + 1.0));
+    vec3 p = mix(tissue, star, toGalaxy) + detour * sin(3.14159265 * toGalaxy) * 1.4;
+    // The disc drains in a swirl and settles as sand.
+    vec3 drain = cross(GALAXY_AXIS, star - GALAXY_CENTER) * sin(3.14159265 * toSand) * 0.35;
+    p = mix(p, aPosSand, toSand) + drain;
+
+    // Night desert: most grains spread out into the dunes, the rest rise and become stars.
+    vec3 desert = aPosDesert.xyz;
+    // Spindrift — the wind lifts grains off the crests in slow gusts and lets them fall.
+    float gust = fract(uTime * 0.12 + aSeed * 7.0);
+    desert += isDrift * (DESERT_WIND * gust * 2.5 + vec3(0.0, sin(3.14159265 * gust) * 0.35, 0.0));
+    vec3 rise = vec3(0.0, sin(3.14159265 * toDesert) * mix(0.6, 6.0, isSky), 0.0);
+    p = mix(p, desert, toDesert) + rise;
+
+    // Finale: stars stream together into the contact logos — each funnelling through its
+    // logo's contact star, which arrives first, then spreading out into the mark.
+    float logoTone = floor(aLogoTone);
+    float inLogo = step(0.5, logoTone);
+    float isSeed = step(0.25, fract(aLogoTone));
+    float toLogo = inLogo * stageBlend(LOGO_MORPH_START, LOGO_MORPH_END, (1.0 - isSeed) * (0.15 + 0.85 * fract(aSeed * 23.7)));
+    vec2 logoUV = vec2(floor(aPosDesert.w) / 4095.0, fract(aPosDesert.w));
+    int cell = int(step(0.5, logoUV.x) + 2.0 * (1.0 - step(0.5, logoUV.y)));
+    vec3 logoAt = uLogoOrigin + uLogoAxisU * logoUV.x + uLogoAxisV * logoUV.y;
+    // Formed, each star still breathes a hair around its place.
+    logoAt += (normalize(uLogoAxisU) * sin(uTime * 0.7 + aSeed * 40.0) + normalize(uLogoAxisV) * cos(uTime * 0.6 + aSeed * 23.0)) * uLogoGrain * 0.3;
+    vec3 seedAt = uLogoOrigin + uLogoAxisU * uLogoCells[cell].x + uLogoAxisV * uLogoCells[cell].y;
+    float e = toLogo;
+    p = mix(p, (1.0 - e) * (1.0 - e) * p + 2.0 * (1.0 - e) * e * seedAt + e * e * logoAt, inLogo);
+
+    vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+
+    float glow;
+    float grow = 1.0;
+    if (aPulse.x > 0.0) {
+      vec3 fire = neuronFiring(uTime, aPulse.x, aPulse.y, aPulse.w);
+      // The firing peaks at the soma, then rolls outward along the arbor.
+      float d = fire.x - FIRE_LEAD - aPulse.z * ARBOR_TRAVEL;
+      float wave = (d < 0.0 ? exp(-d * d * 40.0) : exp(-d * 2.4)) * fire.y;
+      float breath = 0.88 + 0.12 * sin(uTime * 6.2831 / (aPulse.x * 1.7) + aPulse.y * 6.2831);
+      glow = breath + wave * (1.9 - aPulse.z);
+      grow += wave * 0.3 * (1.0 - aPulse.z);
+    } else {
+      glow = 0.65 + 0.35 * sin(uTime * (0.4 + aSeed * 1.3) + aSeed * 57.0);
+    }
+    // The signature doesn't fire yet — it only shimmers.
+    float sigGlow = 0.85 + 0.15 * sin(uTime * (0.7 + aSeed) + aSeed * 50.0);
+    glow = mix(sigGlow, glow, toNetwork);
+    // Stars twinkle; they don't fire.
+    float twinkle = 0.7 + 0.3 * sin(uTime * (0.6 + aSeed * 2.1) + aSeed * 40.0);
+    glow = mix(glow, twinkle, toGalaxy);
+    grow = mix(grow, 1.0 + aStar.w * 0.5, toGalaxy);
+    // Sand lies still; now and then a quartz facet catches the sun.
+    float glint = pow(max(sin(uTime * 0.7 + aSeed * 120.0), 0.0), 60.0) * 3.0;
+    glow = mix(glow, 1.0 + glint, toSand);
+    // Night sky stars twinkle; drifting grains fade in and out with their gust.
+    float starTwinkle = 0.75 + 0.25 * sin(uTime * (0.8 + aSeed * 2.5) + aSeed * 90.0);
+    float driftFade = mix(1.0, sin(3.14159265 * gust), isDrift);
+    glow = mix(glow, mix(1.0, starTwinkle, isSky) * driftFade, toDesert);
+    // In a logo each star twinkles on its own beat; the logo under the pointer brightens.
+    float logoTwinkle = 0.8 + 0.2 * sin(uTime * (0.9 + aSeed * 2.0) + aSeed * 70.0);
+    glow = mix(glow, logoTwinkle * (1.0 + 0.6 * uLogoGlow[cell]), toLogo);
+
+    // In the signature every particle is the same kind of fine, pale dust.
+    float sigBright = aPosSig.w;
+    float sigSize = mix(0.012, 0.034, smoothstep(0.1, 1.0, sigBright)) * (0.75 + 0.5 * fract(aSeed * 3.7));
+    vec3 sigColor = mix(vec3(0.82, 0.9, 1.0), aColor, 0.3);
+
+    float dist = -mvPosition.z;
+    float tissueSize = mix(sigSize, aSize * grow, toNetwork);
+    float worldSize = mix(mix(tissueSize, aSand.w, toSand), aDesert.w, toDesert);
+    worldSize = mix(worldSize, uLogoGrain * (0.8 + 0.4 * fract(aSeed * 5.1)), toLogo);
+    float size = worldSize * uSizeScale * uPixelRatio / dist;
+
+    // Keep sub-pixel points from shimmering: clamp the sprite but conserve energy.
+    float sprite = max(size, 2.0);
+    float energy = min(1.0, (size * size) / (sprite * sprite));
+
+    // Cap so particles the camera flies past don't flood the screen.
+    gl_PointSize = min(sprite, 256.0);
+    vec3 tissueColor = mix(sigColor, aColor, toNetwork);
+    vColor = mix(mix(mix(tissueColor, aStar.rgb, toGalaxy), aSand.rgb, toSand), aDesert.rgb, toDesert);
+    // Each logo in its platform's own colours (brightness baked into the palette).
+    vColor = mix(vColor, uLogoPalette[int(max(logoTone - 1.0, 0.0))], toLogo);
+    // Sand, dunes and night-sky stars carry their lighting in their colour.
+    float tissueBright = mix(sigBright, aBright, toNetwork);
+    float intensity = mix(tissueBright * mix(1.0, aStar.w, toGalaxy), 1.0, max(toSand, toDesert)) * glow;
+    vBright = intensity * energy * depthFade(dist) * focusLight(position) * enclosureDim(p) * (1.0 - swell.w);
+    vSeed = aSeed;
+    // Grains on the ground stay solid; grains that rose into the sky glow again as stars.
+    vGrain = toSand * (1.0 - toDesert * isSky);
+    // Settled sand is solid matter: it hides what lies behind it — once a grain has landed,
+    // until the desert lifts it again. Near the lens the grains stay soft and let light
+    // through, like out-of-focus dust.
+    vSolid = toSand * toSand * toSand * (1.0 - toDesert) * smoothstep(1.0, 2.2, dist);
+  }
+`;
+
+export const particleFragmentShader = /* glsl */ `
+  varying vec3 vColor;
+  varying float vBright;
+  varying float vSeed;
+  varying float vGrain; // 0 = glowing point, 1 = solid sand grain
+  varying float vSolid; // how much a grain covers what lies behind it
+
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float d = length(uv) * 2.0;
+
+    // Slightly lumpy outline per particle — only noticeable on the large ones.
+    float angle = atan(uv.y, uv.x);
+    d *= 1.0 + 0.07 * sin(angle * 3.0 + vSeed * 6.2831) + 0.04 * sin(angle * 5.0 - vSeed * 11.0);
+
+    float core = exp(-d * d * 7.0);
+    float halo = 0.16 * exp(-d * d * 1.8);
+    float glowAlpha = (core + halo) * smoothstep(1.0, 0.7, d);
+    // A sand grain is a solid, soft-edged body rather than a glow — a tiny pebble, lit on
+    // the side facing the low sun (upper left on screen; gl_PointCoord's y runs down) and
+    // in its own shade on the other.
+    float grainAlpha = smoothstep(1.0, 0.6, d) * (0.8 + 0.2 * (1.0 - d * d));
+    float facing = dot(uv * 2.0, vec2(-0.6, -0.55));
+    float pebble = mix(1.0, 0.8 + 0.45 * facing, vGrain);
+    float alpha = mix(glowAlpha, grainAlpha, vGrain);
+    if (alpha < 0.002) discard;
+
+    // Premultiplied: see particleBlending.
+    gl_FragColor = vec4(vColor * vBright * pebble * alpha, grainAlpha * vSolid);
+  }
+`;
