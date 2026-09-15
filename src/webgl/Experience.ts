@@ -1,21 +1,13 @@
-import { HalfFloatType, PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer } from "three";
-import {
-  BloomEffect,
-  EffectComposer,
-  EffectPass,
-  NoiseEffect,
-  RenderPass,
-  ToneMappingEffect,
-  ToneMappingMode,
-  VignetteEffect,
-} from "postprocessing";
+import { PerspectiveCamera, Scene, Vector2, Vector3, WebGLRenderer } from "three";
+import type { EffectComposer } from "postprocessing";
 import { projects } from "@/content/projects";
 import { CameraPath } from "./camera/CameraPath";
 import { signatureFontFamily } from "./fonts";
-import { DESERT, GALAXY, SAND } from "./layout";
+import { DESERT, GALAXY, SAND, VIEW } from "./layout";
+import { createPostProcessing } from "./postprocessing";
 import { buildStates } from "./particles/states";
 import { createBrainWarp } from "./particles/targets/brain";
-import { detectQuality } from "./quality";
+import { detectQuality, ResolutionGovernor } from "./quality";
 import { buildInterior } from "./interior/buildInterior";
 import { NeuronInterior } from "./interior/NeuronInterior";
 import { clamp01, smoothstep } from "./math";
@@ -28,8 +20,7 @@ import { SkyGlow } from "./sky/SkyGlow";
 import { connectSomas } from "./synapses/connect";
 import { SynapseNetwork } from "./synapses/SynapseNetwork";
 
-const FOV = 50;
-const CAMERA_Z = 10;
+const { fov: FOV, cameraZ: CAMERA_Z } = VIEW;
 // Pure black: postprocessing's half-float pipeline re-encodes the clear colour, so any
 // tint here comes out visibly lifted. Black survives every encoding unchanged.
 const VOID_COLOR = 0x000000;
@@ -60,6 +51,8 @@ export interface ExperienceCallbacks {
    * frame — then once `null` as it dissolves.
    */
   onMarkFrame?(rect: ScreenRect | null): void;
+  /** The GPU dropped the WebGL context — the scene can't go on. */
+  onContextLost?(): void;
 }
 
 /** A box on screen, in css px relative to the canvas. */
@@ -92,7 +85,11 @@ export class Experience {
   /** The About neuron the camera dives into. */
   private readonly coreCenter: Vector3;
   private readonly coreRadius: number;
-  private readonly pixelRatio: number;
+  private pixelRatio: number;
+  /** Trades resolution for frame rate when frames run slow. */
+  private readonly governor: ResolutionGovernor;
+  /** Width over height the scene was laid out for — its targets don't follow a resize. */
+  readonly layoutAspect: number;
   /** Idle animation is frozen for visitors who asked for reduced motion. */
   private readonly timeScale: number;
   private frame = 0;
@@ -124,6 +121,7 @@ export class Experience {
   ) {
     const quality = detectQuality();
     this.pixelRatio = quality.pixelRatio;
+    this.governor = new ResolutionGovernor(quality.pixelRatio);
     this.timeScale = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1;
 
     this.renderer = new WebGLRenderer({
@@ -137,6 +135,7 @@ export class Experience {
     this.renderer.setClearColor(VOID_COLOR, 1);
 
     const { width, height } = this.viewport();
+    this.layoutAspect = width / height;
     // Far enough for the desert's horizon and the sky dome of stars (~420 units out).
     this.camera = new PerspectiveCamera(FOV, width / height, 0.1, 1000);
     this.camera.position.set(0, 0, CAMERA_Z);
@@ -171,7 +170,7 @@ export class Experience {
       new Vector3(x, y, z).sub(galaxyCenter).multiplyScalar(galaxyScale).add(galaxyCenter);
     this.path = new CameraPath([
       // A touch further back on the signature; the camera eases in as the network grows.
-      { at: STAGES.signature, position: new Vector3(0, 0, CAMERA_Z + 0.6), target: new Vector3(0, 0, 0) },
+      { at: STAGES.signature, position: new Vector3(0, 0, VIEW.signatureZ), target: new Vector3(0, 0, 0) },
       { at: STAGES.hero, position: new Vector3(0, 0, CAMERA_Z), target: new Vector3(0, 0, 0) },
       { at: STAGES.approach, position: nearCore(0.9, 0.35, 3.2), target: nearCore(0.15, 0.05, 0) },
       { at: STAGES.enter, ...insideEnter },
@@ -212,31 +211,14 @@ export class Experience {
     );
     this.scene.add(this.skyGlow.mesh, this.synapses.mesh, this.field.points, this.interior.points);
 
-    this.composer = new EffectComposer(this.renderer, { frameBufferType: HalfFloatType });
-    this.composer.addPass(new RenderPass(this.scene, this.camera));
-
-    const bloom = new BloomEffect({
-      mipmapBlur: true,
-      luminanceThreshold: 0.4,
-      luminanceSmoothing: 0.3,
-      intensity: 1.1,
-      radius: 0.6,
-      levels: quality.tier === "low" ? 4 : 6,
-    });
-    const toneMapping = new ToneMappingEffect({ mode: ToneMappingMode.AGX });
-    const vignette = new VignetteEffect({ offset: 0.3, darkness: 0.7 });
-    const grain = new NoiseEffect({ premultiply: true });
-    grain.blendMode.opacity.value = 0.4;
-    this.composer.addPass(new EffectPass(this.camera, bloom, toneMapping, vignette, grain));
+    const { composer, effects } = createPostProcessing(this.renderer, this.scene, this.camera, quality.tier);
+    this.composer = composer;
 
     if (process.env.NODE_ENV === "development") {
       Object.assign(window, {
         __experience: {
           experience: this,
-          bloom,
-          toneMapping,
-          vignette,
-          grain,
+          ...effects,
           field: this.field,
           synapses: this.synapses,
         },
@@ -245,6 +227,7 @@ export class Experience {
 
     this.resize();
     window.addEventListener("resize", this.resize);
+    canvas.addEventListener("webglcontextlost", this.onContextLost);
     canvas.addEventListener("pointermove", this.onPointerMove);
     canvas.addEventListener("pointerleave", this.onPointerLeave);
     canvas.addEventListener("click", this.onClick);
@@ -257,6 +240,7 @@ export class Experience {
   dispose(): void {
     cancelAnimationFrame(this.frame);
     window.removeEventListener("resize", this.resize);
+    this.canvas.removeEventListener("webglcontextlost", this.onContextLost);
     this.canvas.removeEventListener("pointermove", this.onPointerMove);
     this.canvas.removeEventListener("pointerleave", this.onPointerLeave);
     this.canvas.removeEventListener("click", this.onClick);
@@ -425,6 +409,8 @@ export class Experience {
     this.callbacks.onSelect?.(hit);
   };
 
+  private onContextLost = () => this.callbacks.onContextLost?.();
+
   private resize = () => {
     const { width, height } = this.viewport();
     this.camera.aspect = width / height;
@@ -440,6 +426,12 @@ export class Experience {
     const delta = this.lastTime ? Math.min((time - this.lastTime) / 1000, 0.1) : 0;
     this.lastTime = time;
     this.elapsed += delta * this.timeScale;
+    const ratio = this.governor.sample(delta);
+    if (ratio !== null) {
+      this.pixelRatio = ratio;
+      this.renderer.setPixelRatio(ratio);
+      this.resize();
+    }
 
     // Exponential ease: the spotlight swells in and ebbs out rather than switching.
     this.focusMix += (this.focusTarget - this.focusMix) * (1 - Math.exp(-delta * 3.5));

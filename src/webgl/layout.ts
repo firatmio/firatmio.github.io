@@ -6,6 +6,17 @@ const normalize = ([x, y, z]: Vec3): Vec3 => {
 };
 
 /**
+ * The camera's lens and the opening framing — shared by the journey and the standalone
+ * signature (the 404 page).
+ */
+export const VIEW = {
+  fov: 50,
+  cameraZ: 10,
+  /** The signature is framed a touch further back; the camera eases in as the network grows. */
+  signatureZ: 10.6,
+};
+
+/**
  * Where the star field forms, in world space. Shared by the galaxy targets, the camera
  * path and the shaders' disc rotation.
  */

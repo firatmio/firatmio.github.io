@@ -4,7 +4,6 @@ import { createRandom, gaussian } from "../../random";
 import type { Box } from "../../signature/TrailField";
 import { distanceToOutside } from "./raster";
 
-const TEXT = "FTA";
 /** Share of all particles that build the letters; the rest drift faintly behind them. */
 const LETTER_SHARE = 0.38;
 /** World height of the letters' relief at its crest. */
@@ -22,7 +21,7 @@ const normalize = (v: Vec3): Vec3 => {
 const LIGHT = normalize([-0.45, 0.55, 0.7]);
 
 /**
- * The opening signature: the initials as one solid, sculpted body of luminous dust,
+ * The opening signature: the initials (or any short `text`, like the 404 page's) as one solid, sculpted body of luminous dust,
  * facing the camera. Each glyph's relief rises over a rounded bevel to a flat top, and a
  * raking light shades it — bevels facing the light glow, those turned away fall dark — so
  * the volume reads from light and shadow on a single surface, with no layers or tilt.
@@ -32,9 +31,9 @@ const LIGHT = normalize([-0.45, 0.55, 0.7]);
  */
 export function buildSignatureTargets(
   count: number,
-  options: { cameraZ: number; fov: number; aspect: number; fontFamily: string; seed?: number },
+  options: { cameraZ: number; fov: number; aspect: number; fontFamily: string; text?: string; seed?: number },
 ): { positions: Float32Array; bounds: Box } {
-  const { cameraZ, fov, aspect, fontFamily, seed = 404 } = options;
+  const { cameraZ, fov, aspect, fontFamily, text = "FTA", seed = 404 } = options;
   const random = createRandom(seed);
   const noise = createNoise3D(random);
 
@@ -49,7 +48,7 @@ export function buildSignatureTargets(
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#fff";
-  ctx.fillText(TEXT, W / 2, H / 2);
+  ctx.fillText(text, W / 2, H / 2);
   const { data } = ctx.getImageData(0, 0, W, H);
 
   const dist = distanceToOutside(data, W, H);

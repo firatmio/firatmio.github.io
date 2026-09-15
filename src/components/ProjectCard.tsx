@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { LuArrowRight, LuX } from "react-icons/lu";
 import { projects } from "@/content/projects";
 import type { HubAnchor } from "@/webgl/Experience";
 
@@ -82,9 +83,7 @@ export default function ProjectCard({
             aria-label="Close"
             className="-mt-1 -mr-2 grid size-9 shrink-0 place-items-center rounded-full text-ink/60 transition-colors hover:bg-white/10 hover:text-ink"
           >
-            <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M3 3l10 10M13 3L3 13" />
-            </svg>
+            <LuX aria-hidden className="size-4" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -106,9 +105,7 @@ export default function ProjectCard({
           className="group mt-6 inline-flex items-center gap-2 text-sm font-medium text-ink"
         >
           View project
-          <span aria-hidden className="transition-transform group-hover:translate-x-1">
-            →
-          </span>
+          <LuArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" strokeWidth={1.5} />
         </Link>
       </div>
     </div>

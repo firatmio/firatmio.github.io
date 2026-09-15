@@ -1,5 +1,6 @@
 import { AddEquation, CustomBlending, OneFactor, OneMinusSrcAlphaFactor } from "three";
 import { glslCommon } from "../shaders/common";
+import { glslSignature } from "../signature/glsl";
 import { LOGO_PALETTE_SIZE } from "./targets/desert";
 
 /**
@@ -17,6 +18,7 @@ export const particleBlending = {
 
 export const particleVertexShader = /* glsl */ `
   ${glslCommon}
+  ${glslSignature}
 
   attribute vec3 aColor;
   // size, brightness, seed, contact-logo colour — packed into one slot: every scene state
@@ -41,8 +43,6 @@ export const particleVertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uPixelRatio;
   uniform float uSizeScale; // viewport height (css px) / (2 * tan(fov / 2))
-  uniform sampler2D uTrail;  // where the cursor has swept: intensity (r), swipe direction (gb)
-  uniform vec4 uTrailBounds; // world rect the trail covers: min x, min y, width, height
   // The finale's contact logos stand on a plane: origin + axisU · u + axisV · v.
   uniform vec3 uLogoOrigin;
   uniform vec3 uLogoAxisU;
@@ -70,20 +70,8 @@ export const particleVertexShader = /* glsl */ `
     float isSky = step(0.5, desertKind) * (1.0 - step(1.5, desertKind));
     float isDrift = step(1.5, desertKind);
 
-    // Signature: the dust shimmers in place. Where the cursor has swept, the letters' grains
-    // are flung along the stroke — each at its own angle and strength — and drift back as
-    // the trail fades.
-    vec3 sig = aPosSig.xyz + vec3(sin(uTime * 0.6 + aSeed * 31.0), cos(uTime * 0.5 + aSeed * 17.0), 0.0) * 0.012;
-    vec4 trail = texture2D(uTrail, (aPosSig.xy - uTrailBounds.xy) / uTrailBounds.zw);
-    // Only the letters answer, not the dust far behind them.
-    float onLetters = 1.0 - smoothstep(0.4, 0.8, abs(aPosSig.z - 0.1));
-    float disturbed = smoothstep(0.0, 1.0, trail.r) * onLetters;
-    vec2 swipe = length(trail.gb) > 1e-4 ? normalize(trail.gb) : vec2(0.0, 1.0);
-    float jolt = 0.4 + fract(aSeed * 13.7);
-    float veer = (fract(aSeed * 29.3) - 0.5) * 2.4;
-    vec2 fling = vec2(swipe.x * cos(veer) - swipe.y * sin(veer), swipe.x * sin(veer) + swipe.y * cos(veer));
-    sig.xy += fling * disturbed * jolt * 0.35;
-    sig.z += (fract(aSeed * 51.1) - 0.3) * disturbed * 0.3;
+    // The signature's dust shimmers and answers the cursor's trail (see glslSignature).
+    vec3 sig = signaturePosition(aPosSig.xyz, aSeed, uTime);
 
     // The About neuron's swelling acts on the tissue itself, so its fibres stay attached.
     vec4 swell = coreSwell(tissueState(position, aPosBrain, toBrain, uTime), uTime);
@@ -137,8 +125,7 @@ export const particleVertexShader = /* glsl */ `
     } else {
       glow = 0.65 + 0.35 * sin(uTime * (0.4 + aSeed * 1.3) + aSeed * 57.0);
     }
-    // The signature doesn't fire yet — it only shimmers.
-    float sigGlow = 0.85 + 0.15 * sin(uTime * (0.7 + aSeed) + aSeed * 50.0);
+    float sigGlow = signatureGlow(aSeed, uTime);
     glow = mix(sigGlow, glow, toNetwork);
     // Stars twinkle; they don't fire.
     float twinkle = 0.7 + 0.3 * sin(uTime * (0.6 + aSeed * 2.1) + aSeed * 40.0);
@@ -155,10 +142,9 @@ export const particleVertexShader = /* glsl */ `
     float logoTwinkle = 0.8 + 0.2 * sin(uTime * (0.9 + aSeed * 2.0) + aSeed * 70.0);
     glow = mix(glow, logoTwinkle * (1.0 + 0.6 * uLogoGlow[cell]), toLogo);
 
-    // In the signature every particle is the same kind of fine, pale dust.
     float sigBright = aPosSig.w;
-    float sigSize = mix(0.012, 0.034, smoothstep(0.1, 1.0, sigBright)) * (0.75 + 0.5 * fract(aSeed * 3.7));
-    vec3 sigColor = mix(vec3(0.82, 0.9, 1.0), aColor, 0.3);
+    float sigSize = signatureSize(sigBright, aSeed);
+    vec3 sigColor = signatureColor(aColor);
 
     float dist = -mvPosition.z;
     float tissueSize = mix(sigSize, aSize * grow, toNetwork);

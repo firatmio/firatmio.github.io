@@ -27,6 +27,7 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 - **postprocessing / Three.js `EffectComposer`** — bloom (nöron/yıldız parlaklığı)
 - **simplex-noise** (npm) — organik pozisyon üretimi
 - **Tailwind CSS** — UI katmanı (liquid glass card, metin overlay'leri)
+- **react-icons** — arayüz simgeleri (Lucide seti, `react-icons/lu`, ince çizgi `strokeWidth={1.5}`). Son sahnedeki iletişim logoları istisna: parçacıklara çevrildikleri için ham SVG path'i olarak `src/content/contact.ts`'te duruyorlar.
 
 ---
 
@@ -42,7 +43,7 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 | 4 | Zoom-out → beyin dokusu | Scroll 3 | Merkezi nöron küçülür, çevredeki diğer nöronlar görünür kalır |
 | 5 | Evren/yıldız kümesi | Scroll 4 | Aynı nokta deseni yıldız kümesi gibi okunur (nöron ≈ yıldız metaforu) |
 | 6 | Sıkışma → kum | Scroll 5 | Galaksi girdap gibi süzülüp yakın plan bir kum yüzeyine yerleşir (yumuşak geçiş). Kumun üstünde, yine tanelerden oluşan, kendi renklerinde (krem yazı, turuncu Q — quacomes.com koyu tema) bir Quacomes logosu fiziksel bir nesne gibi durur: kamera ona hafif yukarıdan bakar, kum arkasında da sürer ve harfler arkadaki kumu örter; logo kameraya düz bakar, kalınlığı sağa doğru eğik (klasik 3D yazı gibi) okunur, dibinde temas gölgesi var (dibine kum birikintisi denendi, kaide gibi durdu); alçak güneş gölgesini kuma düşürür. Logoya tıklayınca quacomes.com yeni sekmede açılır. |
-| 7 | Gece çölü — kapanış + footer | Scroll son | Kamera kum tanelerinden geri çekilir: ufka uzanan ay ışıklı kumullar, rüzgârın kretlerden savurduğu kum, gökte yeniden galaksi (Samanyolu); taneler yıldızlara yükselir. Dört parlak iletişim yıldızı (hero'daki proje nöronlarının aynası) çekirdek olur: son kaydırmada yıldızlar akıp onlara toplanır ve platform logolarını (LinkedIn, X, GitHub, e-posta) kendi marka renklerinde oluşturur — ortada gevşek bir 2×2, Samanyolu yerinde kalır. Her logo tıklanabilir, altında adı ve kullanıcı adı; üzerine gelinen logo parlar. Sahnenin son anı = footer/iletişim (ayrı bileşen değil, sahnenin kendisi bu işlevi taşır). |
+| 7 | Gece çölü — kapanış + footer | Scroll son | Kamera kum tanelerinden geri çekilir: ufka uzanan ay ışıklı kumullar, rüzgârın kretlerden savurduğu kum, gökte yeniden galaksi (Samanyolu); taneler yıldızlara yükselir. Dört parlak iletişim yıldızı (hero'daki proje nöronlarının aynası) çekirdek olur: son kaydırmada yıldızlar akıp onlara toplanır ve platform logolarını (LinkedIn, X, GitHub, e-posta) kendi marka renklerinde oluşturur — ortada gevşek bir 2×2, Samanyolu yerinde kalır. Her logo tıklanabilir (altında yazı yok — logolar kendini anlatıyor); üzerine gelinen logo yumuşakça parlar. Sahnenin son anı = footer/iletişim (ayrı bileşen değil, sahnenin kendisi bu işlevi taşır). |
 
 **Kapsam dışı (bilinçli olarak ekleniyor değil):** Yatay scroll ile kayan proje/yazı kart şeridi. İleride ayrı değerlendirilecek — şimdi eklenmeyecek.
 
@@ -52,9 +53,10 @@ Mevcut site (açık/krem editoryal tema, Writings/Projects/About sekmeleri) bir 
 
 - **Tek parçacık sistemi, çoklu hedef pozisyon seti.** Ayrı sahneler kurmak yerine tek bir `InstancedMesh`/`Points` sistemi — imza, nöron haritası, beyin, evren, kum, gece çölü hepsi bu sistemin farklı hedef pozisyon dizileri. Scroll progress'e göre pozisyonlar arası interpolasyon/blend yapılır.
 - **Işık ve örtme:** Parçacıklar toplamalı parlar; tek istisna kum durumu — yere oturmuş taneler opaktır ve arkalarını örter (premultiplied "over" karışımı + kum kamerasına göre uzaktan yakına çizim sırası). Böylece kumdaki Quacomes logosu fiziksel bir cisim gibi okunur.
+- **404 sayfası:** Açılıştaki imza sahnesi tek başına (`SignatureScene`): aynı ışıklı toz, pahlı harfler, imleç izi, salınım ve paralaks — "404" yazar. Harf üretimi, imza GLSL'i (`signature/glsl.ts`), efekt zinciri (`postprocessing.ts`) ve kamera (`VIEW`) yolculukla ortak; ikisi birbirinden ayrışmamalı.
 - **Kamera:** Scroll'a bağlı, ease eğrileriyle hareket eden tek bir path. GSAP ScrollTrigger `scrub` ile senkronize.
 - **Gece çölü de aynı parçacık sisteminin bir durumu** — kumullar, savrulan kum ve yıldızlar ayrı sahne değil; `uTime` bazlı sürekli animasyon. Tek yardımcı alt-sistem ufuktaki hafif gökyüzü parıltısı. (Tanelerin altına kesintisiz bir kumul yüzeyi denendi, beğenilmedi; doluluk tanelerin kendisinden gelmeli.)
-- **Performans:** Shader hesaplamaları GPU'da olmalı, CPU'da parçacık pozisyonu hesaplanmamalı. Parçacık sayısı cihaz/ekran boyutuna göre ölçeklenmeli (mobilde düşürülmüş sayı). Düşük FPS / WebGL desteklemeyen cihazlar için statik/video fallback düşünülmeli.
+- **Performans:** Shader hesaplamaları GPU'da olmalı, CPU'da parçacık pozisyonu hesaplanmamalı. Parçacık sayısı cihaz/ekran boyutuna göre ölçeklenir (`detectQuality`: 24k / 45k / 70k). Kare hızı düşerse `ResolutionGovernor` çözünürlüğü kademeli düşürür, toparlanınca geri yükseltir (parçacık sayısı sabit). Hedefler yüklenirken ekran oranına göre kurulur; oran %15'ten fazla değişirse (telefonu döndürme) sahne yeni bir canvas'ta yeniden kurulur. WebGL 2 yoksa, sahne başlatılamazsa ya da GPU bağlamı kaybolursa aynı içerik düz bir sayfa olarak gösterilir (`StaticJourney`).
 
 ---
 

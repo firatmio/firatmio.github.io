@@ -5,14 +5,19 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 import { projects } from "@/content/projects";
 import { QUACOMES_LOGO } from "@/content/quacomes-logo";
-import type { Experience, HubAnchor } from "@/webgl/Experience";
+import type { Experience, ExperienceCallbacks, HubAnchor } from "@/webgl/Experience";
 import { SIGNATURE_WEIGHT, signatureFontFamily } from "@/webgl/fonts";
 import { smoothstep } from "@/webgl/math";
+import { supportsWebGL2 } from "@/webgl/quality";
 import { aboutBeats, aboutReveal, contactReveal } from "@/webgl/stages";
 import AboutOverlay from "./AboutOverlay";
 import ContactStars from "./ContactStars";
 import HubLabel from "./HubLabel";
 import ProjectCard from "./ProjectCard";
+import StaticJourney from "./StaticJourney";
+
+/** How far the screen's shape may drift from the one the scene was laid out for before it's rebuilt. */
+const RELAYOUT_ASPECT = 1.15;
 
 export default function SceneCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,63 +32,73 @@ export default function SceneCanvas() {
   const [selected, setSelected] = useState<HubAnchor | null>(null);
   const [explored, setExplored] = useState(false);
   const [interactive, setInteractive] = useState(false);
+  /** The journey can't run here — show everything it holds as a plain page instead. */
+  const [fallback, setFallback] = useState(false);
+  /** Bumped to rebuild the scene, on a fresh canvas, when the screen changes shape. */
+  const [layout, setLayout] = useState(0);
   const selectedSlug = selected?.slug ?? null;
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || fallback) return;
 
     let disposed = false;
+    const callbacks: ExperienceCallbacks = {
+      onHover: setHovered,
+      onSelect: (hub) => {
+        setSelected(hub);
+        if (hub) setExplored(true);
+      },
+      onInteractiveChange: (value) => {
+        setInteractive(value);
+        if (!value) {
+          setSelected(null);
+          setHovered(null);
+        }
+      },
+      // Lay each contact link over its logo in the sky — straight to the DOM, every frame.
+      onContactFrame: (rects) => {
+        const anchors = contactRef.current?.querySelectorAll<HTMLElement>("[data-contact]");
+        if (!anchors) return;
+        rects.forEach((rect, i) => {
+          const anchor = anchors[i];
+          if (!anchor) return;
+          anchor.style.visibility = rect ? "" : "hidden";
+          if (!rect) return;
+          anchor.style.translate = `${rect.left}px ${rect.top}px`;
+          anchor.style.width = `${rect.width}px`;
+          anchor.style.height = `${rect.height}px`;
+        });
+      },
+      // Lay the Quacomes link over the mark on the sand — straight to the DOM, every frame.
+      onMarkFrame: (rect) => {
+        const link = markRef.current;
+        if (!link) return;
+        link.style.visibility = rect ? "visible" : "hidden";
+        if (!rect) return;
+        link.style.translate = `${rect.left}px ${rect.top}px`;
+        link.style.width = `${rect.width}px`;
+        link.style.height = `${rect.height}px`;
+      },
+      onContextLost: () => setFallback(true),
+    };
 
     // Load three.js lazily so the HTML shell paints before the WebGL bundle arrives.
     import("@/webgl/Experience").then(async ({ Experience }) => {
       // The signature is rasterised from its typeface — wait until that has really loaded.
       await document.fonts.load(`${SIGNATURE_WEIGHT} 64px ${signatureFontFamily()}`).catch(() => undefined);
       if (disposed) return;
+      if (!supportsWebGL2()) {
+        setFallback(true);
+        return;
+      }
       try {
-        const experience = new Experience(canvas, {
-          onHover: setHovered,
-          onSelect: (hub) => {
-            setSelected(hub);
-            if (hub) setExplored(true);
-          },
-          onInteractiveChange: (value) => {
-            setInteractive(value);
-            if (!value) {
-              setSelected(null);
-              setHovered(null);
-            }
-          },
-          // Lay each contact link over its logo in the sky — straight to the DOM, every frame.
-          onContactFrame: (rects) => {
-            const anchors = contactRef.current?.querySelectorAll<HTMLElement>("[data-contact]");
-            if (!anchors) return;
-            rects.forEach((rect, i) => {
-              const anchor = anchors[i];
-              if (!anchor) return;
-              anchor.style.visibility = rect ? "" : "hidden";
-              if (!rect) return;
-              anchor.style.translate = `${rect.left}px ${rect.top}px`;
-              anchor.style.width = `${rect.width}px`;
-              anchor.style.height = `${rect.height}px`;
-            });
-          },
-          // Lay the Quacomes link over the mark on the sand — straight to the DOM, every frame.
-          onMarkFrame: (rect) => {
-            const link = markRef.current;
-            if (!link) return;
-            link.style.visibility = rect ? "visible" : "hidden";
-            if (!rect) return;
-            link.style.translate = `${rect.left}px ${rect.top}px`;
-            link.style.width = `${rect.width}px`;
-            link.style.height = `${rect.height}px`;
-          },
-        });
+        const experience = new Experience(canvas, callbacks);
         experience.setProgress(progressRef.current);
         experienceRef.current = experience;
       } catch (error) {
-        // TODO(phase 12): static fallback for devices without WebGL.
         console.warn("WebGL experience failed to start", error);
+        setFallback(true);
       }
     });
 
@@ -92,13 +107,37 @@ export default function SceneCanvas() {
       experienceRef.current?.dispose();
       experienceRef.current = null;
     };
+  }, [fallback, layout]);
+
+  // The scene's targets are laid out for the screen's shape at load. When it changes a lot
+  // — a phone turned on its side, a window dragged far wider — rebuild it for the new one.
+  // Small changes, like a mobile browser's toolbar sliding away, are left alone.
+  useEffect(() => {
+    let timer = 0;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const experience = experienceRef.current;
+        if (!experience) return;
+        const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+        if (Math.abs(Math.log(aspect / experience.layoutAspect)) < Math.log(RELAYOUT_ASPECT)) return;
+        setSelected(null);
+        setHovered(null);
+        setLayout((n) => n + 1);
+      }, 400);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   // Scroll is the timeline: ScrollTrigger scrubs a single 0..1 progress value, with a
   // little lag so the camera eases after the wheel instead of jerking with it.
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || fallback) return;
     gsap.registerPlugin(ScrollTrigger);
     const journey = { progress: 0 };
     const ctx = gsap.context(() => {
@@ -130,7 +169,7 @@ export default function SceneCanvas() {
       });
     });
     return () => ctx.revert();
-  }, []);
+  }, [fallback]);
 
   // The WebGL spotlight follows whichever card is open.
   useEffect(() => {
@@ -163,12 +202,18 @@ export default function SceneCanvas() {
     setExplored(true);
   };
 
+  if (fallback) return <StaticJourney />;
+
   return (
     <>
-      <canvas ref={canvasRef} aria-hidden className="fixed inset-0 block h-full w-full" />
+      <canvas key={layout} ref={canvasRef} aria-hidden className="fixed inset-0 block h-full w-full" />
 
       {/* The scroll track: its height is the length of the journey. */}
       <div ref={trackRef} aria-hidden className="pointer-events-none relative h-[1300svh]" />
+
+      <p className="pointer-events-none fixed top-6 left-6 font-mono text-xs tracking-[0.2em] text-ink/60 uppercase">
+        Fırat Tuna Arslan
+      </p>
 
       <AboutOverlay ref={aboutRef} />
       <ContactStars ref={contactRef} onHover={(index) => experienceRef.current?.setContactHover(index)} />
