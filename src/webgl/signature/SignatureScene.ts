@@ -40,6 +40,7 @@ const vertexShader = /* glsl */ `
   varying float vSeed;
   varying float vGrain;
   varying float vSolid;
+  varying vec4 vLump;
 
   void main() {
     vec3 p = signaturePosition(position, aSeed, uTime);
@@ -58,6 +59,7 @@ const vertexShader = /* glsl */ `
     vSeed = aSeed;
     vGrain = 0.0;
     vSolid = 0.0;
+    vLump = lumpPhase(aSeed);
   }
 `;
 

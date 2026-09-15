@@ -57,6 +57,7 @@ export const particleVertexShader = /* glsl */ `
   varying float vSeed;
   varying float vGrain;
   varying float vSolid;
+  varying vec4 vLump;
 
   void main() {
     // Letters dissolve roughly left to right, each particle on its own beat.
@@ -70,15 +71,28 @@ export const particleVertexShader = /* glsl */ `
     float isSky = step(0.5, desertKind) * (1.0 - step(1.5, desertKind));
     float isDrift = step(1.5, desertKind);
 
-    // The signature's dust shimmers and answers the cursor's trail (see glslSignature).
-    vec3 sig = signaturePosition(aPosSig.xyz, aSeed, uTime);
+    // Work a state can't contribute to at this point of the scroll is skipped. The tests are
+    // on uniforms, so the whole draw takes the same branch, and the skipped states' weights
+    // are exactly 0 or 1 there — the result is identical, the GPU just does less.
 
-    // The About neuron's swelling acts on the tissue itself, so its fibres stay attached.
-    vec4 swell = coreSwell(tissueState(position, aPosBrain, toBrain, uTime), uTime);
+    // The signature's dust shimmers and answers the cursor's trail (see glslSignature) —
+    // there at the start, and again as the loop returns to it.
+    vec3 sig = aPosSig.xyz;
+    if (uProgress < STAGE_HERO || uProgress > LOOP_GATHER_START) sig = signaturePosition(aPosSig.xyz, aSeed, uTime);
+
     // On the first scroll the letters burst apart and settle into the network.
     vec3 scatter = vec3(sin(aSeed * 23.0), cos(aSeed * 41.0), sin(aSeed * 67.0));
-    vec3 tissue = mix(sig, swell.xyz, toNetwork) + scatter * sin(3.14159265 * toNetwork) * 2.2;
-    vec3 star = rotateGalaxy(aPosGalaxy, uTime);
+    // The About neuron's swelling acts on the tissue itself, so its fibres stay attached.
+    // Once the star field has formed, the tissue is gone.
+    vec4 swell = vec4(0.0);
+    vec3 tissue = sig;
+    if (uProgress < STAGE_GALAXY) {
+      swell = coreSwell(tissueState(position, aPosBrain, toBrain, uTime), uTime);
+      tissue = mix(sig, swell.xyz, toNetwork) + scatter * sin(3.14159265 * toNetwork) * 2.2;
+    }
+    // The disc turns from when the stars gather until it has drained into sand.
+    vec3 star = aPosGalaxy;
+    if (uProgress > GALAXY_MORPH_START && uProgress < STAGE_SAND) star = rotateGalaxy(aPosGalaxy, uTime);
     // Each particle takes its own detour on the long flight out — the fibres are gone by then.
     vec3 detour = vec3(sin(aSeed * 43.0), cos(aSeed * 71.0), sin(aSeed * 19.0 + 1.0));
     vec3 p = mix(tissue, star, toGalaxy) + detour * sin(3.14159265 * toGalaxy) * 1.4;
@@ -102,23 +116,30 @@ export const particleVertexShader = /* glsl */ `
     float toLogo = inLogo * stageBlend(LOGO_MORPH_START, LOGO_MORPH_END, (1.0 - isSeed) * (0.15 + 0.85 * fract(aSeed * 23.7)));
     vec2 logoUV = vec2(floor(aPosDesert.w) / 4095.0, fract(aPosDesert.w));
     int cell = int(step(0.5, logoUV.x) + 2.0 * (1.0 - step(0.5, logoUV.y)));
-    vec3 logoAt = uLogoOrigin + uLogoAxisU * logoUV.x + uLogoAxisV * logoUV.y;
-    // Formed, each star still breathes a hair around its place.
-    logoAt += (normalize(uLogoAxisU) * sin(uTime * 0.7 + aSeed * 40.0) + normalize(uLogoAxisV) * cos(uTime * 0.6 + aSeed * 23.0)) * uLogoGrain * 0.3;
-    vec3 seedAt = uLogoOrigin + uLogoAxisU * uLogoCells[cell].x + uLogoAxisV * uLogoCells[cell].y;
-    float e = toLogo;
-    p = mix(p, (1.0 - e) * (1.0 - e) * p + 2.0 * (1.0 - e) * e * seedAt + e * e * logoAt, inLogo);
+    // Only the logos' own stars, and only once the logos begin to gather.
+    float burstAge = 0.0;
+    float flash = 0.0;
+    if (uProgress > LOGO_MORPH_START && inLogo > 0.5) {
+      vec3 logoAt = uLogoOrigin + uLogoAxisU * logoUV.x + uLogoAxisV * logoUV.y;
+      // Formed, each star still breathes a hair around its place.
+      logoAt += (normalize(uLogoAxisU) * sin(uTime * 0.7 + aSeed * 40.0) + normalize(uLogoAxisV) * cos(uTime * 0.6 + aSeed * 23.0)) * uLogoGrain * 0.3;
+      vec3 seedAt = uLogoOrigin + uLogoAxisU * uLogoCells[cell].x + uLogoAxisV * uLogoCells[cell].y;
+      float e = toLogo;
+      p = (1.0 - e) * (1.0 - e) * p + 2.0 * (1.0 - e) * e * seedAt + e * e * logoAt;
 
-    // Pushed on past them, the logos burst one after another, like fireworks: a flash, then
-    // their stars flung out in a shell that slows as it spreads and fades to dust.
-    float burstT = clamp((uProgress - LOOP_EXPLODE_START) / (LOOP_EXPLODE_END - LOOP_EXPLODE_START), 0.0, 1.0);
-    float burstAge = inLogo * clamp((burstT - float(cell) * 0.12 - fract(aSeed * 17.9) * 0.05) / 0.5, 0.0, 1.0);
-    float fly = 1.0 - pow(1.0 - burstAge, 3.0);
-    float flash = burstAge > 0.0 ? exp(-burstAge * 7.0) : 0.0;
-    vec3 jitter = vec3(hash11(aSeed * 13.1), hash11(aSeed * 7.7), hash11(aSeed * 3.3)) - 0.5;
-    vec3 shell = normalize(normalize(logoAt - seedAt + 1e-4) * 0.9 + jitter * 1.6);
-    float reach = length(uLogoAxisU) * (0.25 + 0.55 * hash11(aSeed * 29.3));
-    p += (shell * fly - normalize(uLogoAxisV) * 0.15 * fly * fly) * reach * inLogo;
+      // Pushed on past them, the logos burst one after another, like fireworks: a flash,
+      // then their stars flung out in a shell that slows as it spreads and fades to dust.
+      float burstT = clamp((uProgress - LOOP_EXPLODE_START) / (LOOP_EXPLODE_END - LOOP_EXPLODE_START), 0.0, 1.0);
+      burstAge = clamp((burstT - float(cell) * 0.12 - fract(aSeed * 17.9) * 0.05) / 0.5, 0.0, 1.0);
+      if (burstAge > 0.0) {
+        float fly = 1.0 - pow(1.0 - burstAge, 3.0);
+        flash = exp(-burstAge * 7.0);
+        vec3 jitter = vec3(hash11(aSeed * 13.1), hash11(aSeed * 7.7), hash11(aSeed * 3.3)) - 0.5;
+        vec3 shell = normalize(normalize(logoAt - seedAt + 1e-4) * 0.9 + jitter * 1.6);
+        float reach = length(uLogoAxisU) * (0.25 + 0.55 * hash11(aSeed * 29.3));
+        p += (shell * fly - normalize(uLogoAxisV) * 0.15 * fly * fly) * reach;
+      }
+    }
 
     // Then all of it — the logos' dust, the sky, the dunes — drifts back into the
     // signature, and the journey begins again from the top.
@@ -128,18 +149,21 @@ export const particleVertexShader = /* glsl */ `
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    float glow;
+    float glow = 1.0;
     float grow = 1.0;
-    if (aPulse.x > 0.0) {
-      vec3 fire = neuronFiring(uTime, aPulse.x, aPulse.y, aPulse.w);
-      // The firing peaks at the soma, then rolls outward along the arbor.
-      float d = fire.x - FIRE_LEAD - aPulse.z * ARBOR_TRAVEL;
-      float wave = (d < 0.0 ? exp(-d * d * 40.0) : exp(-d * 2.4)) * fire.y;
-      float breath = 0.88 + 0.12 * sin(uTime * 6.2831 / (aPulse.x * 1.7) + aPulse.y * 6.2831);
-      glow = breath + wave * (1.9 - aPulse.z);
-      grow += wave * 0.3 * (1.0 - aPulse.z);
-    } else {
-      glow = 0.65 + 0.35 * sin(uTime * (0.4 + aSeed * 1.3) + aSeed * 57.0);
+    // Neurons fire only while there is a network: from the signature's scatter to the stars.
+    if (uProgress > SIGNATURE_MORPH_START && uProgress < STAGE_GALAXY) {
+      if (aPulse.x > 0.0) {
+        vec3 fire = neuronFiring(uTime, aPulse.x, aPulse.y, aPulse.w);
+        // The firing peaks at the soma, then rolls outward along the arbor.
+        float d = fire.x - FIRE_LEAD - aPulse.z * ARBOR_TRAVEL;
+        float wave = (d < 0.0 ? exp(-d * d * 40.0) : exp(-d * 2.4)) * fire.y;
+        float breath = 0.88 + 0.12 * sin(uTime * 6.2831 / (aPulse.x * 1.7) + aPulse.y * 6.2831);
+        glow = breath + wave * (1.9 - aPulse.z);
+        grow += wave * 0.3 * (1.0 - aPulse.z);
+      } else {
+        glow = 0.65 + 0.35 * sin(uTime * (0.4 + aSeed * 1.3) + aSeed * 57.0);
+      }
     }
     float sigGlow = signatureGlow(aSeed, uTime);
     glow = mix(sigGlow, glow, toNetwork);
@@ -191,6 +215,7 @@ export const particleVertexShader = /* glsl */ `
     intensity = mix(intensity, sigBright * sigGlow, toReturn);
     vBright = intensity * energy * depthFade(dist) * focusLight(position) * enclosureDim(p) * (1.0 - swell.w);
     vSeed = aSeed;
+    vLump = lumpPhase(aSeed);
     // Grains on the ground stay solid; grains that rose into the sky glow again as stars.
     vGrain = toSand * (1.0 - toDesert * isSky) * (1.0 - toReturn);
     // Settled sand is solid matter: it hides what lies behind it — once a grain has landed,
@@ -206,14 +231,23 @@ export const particleFragmentShader = /* glsl */ `
   varying float vSeed;
   varying float vGrain; // 0 = glowing point, 1 = solid sand grain
   varying float vSolid; // how much a grain covers what lies behind it
+  varying vec4 vLump;   // the outline's phase offsets (lumpPhase)
 
   void main() {
     vec2 uv = gl_PointCoord - 0.5;
     float d = length(uv) * 2.0;
 
-    // Slightly lumpy outline per particle — only noticeable on the large ones.
-    float angle = atan(uv.y, uv.x);
-    d *= 1.0 + 0.07 * sin(angle * 3.0 + vSeed * 6.2831) + 0.04 * sin(angle * 5.0 - vSeed * 11.0);
+    // Slightly lumpy outline per particle — only noticeable on the large ones:
+    // 1 + 0.07·sin(3θ + a) + 0.04·sin(5θ + b), built from the multiple-angle identities on
+    // cos θ and sin θ, with the phases a and b handed over by the vertex shader.
+    vec2 dir = uv / max(length(uv), 1e-4);
+    float c2 = dir.x * dir.x;
+    float s2 = dir.y * dir.y;
+    float sin3 = dir.y * (3.0 - 4.0 * s2);
+    float cos3 = dir.x * (4.0 * c2 - 3.0);
+    float sin5 = dir.y * (16.0 * s2 * s2 - 20.0 * s2 + 5.0);
+    float cos5 = dir.x * (16.0 * c2 * c2 - 20.0 * c2 + 5.0);
+    d *= 1.0 + 0.07 * (sin3 * vLump.x + cos3 * vLump.y) + 0.04 * (sin5 * vLump.z + cos5 * vLump.w);
 
     float core = exp(-d * d * 7.0);
     float halo = 0.16 * exp(-d * d * 1.8);

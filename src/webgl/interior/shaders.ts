@@ -25,10 +25,12 @@ export const interiorVertexShader = /* glsl */ `
   // Shared fragment shader: the interior is always glowing points.
   varying float vGrain;
   varying float vSolid;
+  varying vec4 vLump;
 
   void main() {
     vGrain = 0.0;
     vSolid = 0.0;
+    vLump = lumpPhase(aSeed);
     vec3 local = position;
     float glow = 1.0;
 

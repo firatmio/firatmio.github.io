@@ -60,6 +60,11 @@ export class TrailField {
 
   /** @param point the cursor on the letters' plane, or `null` when it isn't stirring. */
   update(delta: number, point: { x: number; y: number } | null): void {
+    // Settled and untouched: nothing to fade, nothing to upload.
+    if (!point && !this.live) {
+      this.last = null;
+      return;
+    }
     const fade = Math.exp(-delta / RECOVERY);
     let energy = 0;
     for (let i = 0; i < this.field.length; i += 4) {

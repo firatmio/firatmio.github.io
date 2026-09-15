@@ -60,6 +60,12 @@ export const glslCommon = /* glsl */ `
     return vec3(fract(cycle) * period, strength, index);
   }
 
+  // The two phase offsets of a particle's lumpy outline, as cos/sin pairs, so the fragment
+  // shader can shape it with plain arithmetic instead of atan and sin on every pixel.
+  vec4 lumpPhase(float seed) {
+    return vec4(cos(seed * 6.2831), sin(seed * 6.2831), cos(seed * 11.0), -sin(seed * 11.0));
+  }
+
   // Slow, spatially coherent swell of the whole tissue — breathing, not jitter.
   vec3 tissueDrift(vec3 p, float time) {
     return vec3(

@@ -10,6 +10,7 @@ import {
 } from "three";
 import type { BrainWarp } from "../particles/targets/brain";
 import type { Enclosure } from "../shaders/common";
+import { STAGES } from "../stages";
 import type { SynapseCurve } from "./connect";
 import { synapseFragmentShader, synapseVertexShader } from "./shaders";
 
@@ -140,6 +141,10 @@ export class SynapseNetwork {
   }
 
   update(time: number, progress: number, hazeStart: number): void {
+    // Fibres exist only from the grown network until they dissolve before the star field
+    // (the shader's `grown` and `web`). Outside that, don't draw them at all — every vertex
+    // of every ribbon would otherwise work out the tissue three times, only to be discarded.
+    this.mesh.visible = progress > STAGES.hero - 0.03 && progress < STAGES.brain + 0.03;
     this.material.uniforms.uTime.value = time;
     this.material.uniforms.uProgress.value = progress;
     this.material.uniforms.uHazeStart.value = hazeStart;
