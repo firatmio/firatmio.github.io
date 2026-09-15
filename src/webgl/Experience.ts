@@ -91,6 +91,8 @@ export class Experience {
   private readonly markCorners: [number, number, number][];
   private markShown = false;
   private rendered = false;
+  /** Every material's shaders are compiled (see the constructor). */
+  private compiled = false;
 
   private readonly composer: EffectComposer;
   private readonly skyGlow = new SkyGlow();
@@ -221,6 +223,9 @@ export class Experience {
       fontFamily: signatureFontFamily(),
     });
     this.field = new ParticleField(map.particles, states);
+    // On a phone the near-lens blobs are the heaviest fill of all (inside the About neuron,
+    // many at once); smaller, they still read as out-of-focus dust.
+    this.field.setMaxPointSize(quality.tier === "low" ? 128 : 256);
     this.contactLogos = states.logos.corners;
     this.markCorners = states.markCorners;
     this.trail = new TrailField(states.signatureBounds);
@@ -235,6 +240,18 @@ export class Experience {
       map.core.radius,
     );
     this.scene.add(this.skyGlow.mesh, this.synapses.mesh, this.field.points, this.interior.points);
+    // Compile every material now, behind the loader. On a phone's GPU a shader compiling the
+    // first time its object shows up — the fibres at the network, the About neuron's
+    // interior, the desert's sky glow — is a hitch of 100ms or more, mid-journey. (The
+    // renderer only compiles what's visible, so the hidden ones are shown for the call.)
+    const hidden = [this.skyGlow.mesh, this.synapses.mesh, this.interior.points].filter((o) => !o.visible);
+    hidden.forEach((o) => (o.visible = true));
+    const compiling = this.renderer.compileAsync(this.scene, this.camera);
+    hidden.forEach((o) => (o.visible = false));
+    // The loader stays up until they're ready — or a few seconds, should a driver never say.
+    const markCompiled = () => (this.compiled = true);
+    compiling.then(markCompiled, markCompiled);
+    window.setTimeout(markCompiled, 4000);
 
     const { composer, effects } = createPostProcessing(this.renderer, this.scene, this.camera, quality.tier);
     this.composer = composer;
@@ -551,7 +568,7 @@ export class Experience {
     this.projectMark();
     if (this.bypassPost) this.renderer.render(this.scene, this.camera);
     else this.composer.render(delta);
-    if (!this.rendered) {
+    if (!this.rendered && this.compiled) {
       this.rendered = true;
       this.callbacks.onReady?.();
     }

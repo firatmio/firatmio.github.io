@@ -43,6 +43,7 @@ export const particleVertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uPixelRatio;
   uniform float uSizeScale; // viewport height (css px) / (2 * tan(fov / 2))
+  uniform float uMaxPointSize; // device px — smaller on phones, where near-lens blobs cost the most
   // The finale's contact logos stand on a plane: origin + axisU · u + axisV · v.
   uniform vec3 uLogoOrigin;
   uniform vec3 uLogoAxisU;
@@ -201,7 +202,7 @@ export const particleVertexShader = /* glsl */ `
     float energy = min(1.0, (size * size) / (sprite * sprite));
 
     // Cap so particles the camera flies past don't flood the screen.
-    gl_PointSize = min(sprite, 256.0);
+    gl_PointSize = min(sprite, uMaxPointSize);
     vec3 tissueColor = mix(sigColor, aColor, toNetwork);
     vColor = mix(mix(mix(tissueColor, aStar.rgb, toGalaxy), aSand.rgb, toSand), aDesert.rgb, toDesert);
     // Each logo in its platform's own colours (brightness baked into the palette).

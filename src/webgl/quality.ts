@@ -32,7 +32,9 @@ function detectTier(): Quality {
   const coarse = window.matchMedia("(pointer: coarse)").matches;
 
   if (coarse || Math.min(width, height) < 600) {
-    return { tier: "low", particles: 24_000, pixelRatio: Math.min(dpr, 1.5) };
+    // Phones start at 1.2: on a mid-range GPU (Mali-G57) the governor settled there anyway,
+    // and every step down on the way costs a render-target rebuild — a hitch.
+    return { tier: "low", particles: 24_000, pixelRatio: Math.min(dpr, 1.2) };
   }
   if (cores >= 8 && width * height >= 1280 * 720) {
     return { tier: "high", particles: 70_000, pixelRatio: Math.min(dpr, 2) };

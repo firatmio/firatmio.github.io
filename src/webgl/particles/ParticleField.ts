@@ -85,6 +85,7 @@ export class ParticleField {
         uTime: { value: 0 },
         uPixelRatio: { value: 1 },
         uSizeScale: { value: 1 },
+        uMaxPointSize: { value: 256 },
         uFocus: { value: new Vector3() },
         uFocusMix: { value: 0 },
         uProgress: { value: 0 },
@@ -136,6 +137,11 @@ export class ParticleField {
   setFocus(position: readonly [number, number, number], amount: number): void {
     this.material.uniforms.uFocus.value.set(...position);
     this.material.uniforms.uFocusMix.value = amount;
+  }
+
+  /** Largest sprite, in device px: the cap on particles the camera flies right past. */
+  setMaxPointSize(px: number): void {
+    this.material.uniforms.uMaxPointSize.value = px;
   }
 
   /** Brighten one of the finale's contact logos (contacts order), or none — eased in update(). */

@@ -90,7 +90,9 @@ export default function AboutOverlay({ ref }: { ref: Ref<HTMLElement> }) {
                   {group.items.map((item) => (
                     <li
                       key={item}
-                      className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-sm font-medium text-ink backdrop-blur-sm md:text-base"
+                      // The blur behind each pill is redone every frame over the moving scene — too
+                      // costly on a phone, where the dark scrim behind them does the job alone.
+                      className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-sm font-medium text-ink md:text-base md:backdrop-blur-sm"
                     >
                       {item}
                     </li>
