@@ -2,10 +2,29 @@ export interface Quality {
   tier: "low" | "mid" | "high";
   particles: number;
   pixelRatio: number;
+  /** Pinned from the URL for a test — the resolution governor stays out of it. */
+  fixedPixelRatio?: boolean;
+}
+
+/**
+ * Device tiering, with overrides for testing on a real phone: `?count=12000` sets the
+ * particle budget, `?pr=1` pins the pixel ratio.
+ */
+export function detectQuality(): Quality {
+  const quality = detectTier();
+  const params = new URLSearchParams(window.location.search);
+  const count = Number(params.get("count"));
+  if (count >= 1000) quality.particles = Math.min(Math.round(count), 200_000);
+  const pr = Number(params.get("pr"));
+  if (pr > 0) {
+    quality.pixelRatio = Math.min(pr, 3);
+    quality.fixedPixelRatio = true;
+  }
+  return quality;
 }
 
 /** Rough device tiering — the particle budget is the main cost lever. */
-export function detectQuality(): Quality {
+function detectTier(): Quality {
   const width = window.innerWidth;
   const height = window.innerHeight;
   const dpr = window.devicePixelRatio || 1;
@@ -43,16 +62,25 @@ const CALM_WINDOWS = 3;
  * how long the frames took: when they ran slow it steps the pixel ratio down, and once
  * there's headroom again it steps back up towards the device's own. Particle counts stay
  * fixed — the fill cost of the glowing dust and the bloom is what moves.
+ *
+ * Every step rebuilds the render targets, which is itself a hitch — so it must not swing
+ * back and forth. A step up that couldn't hold becomes the ceiling it won't climb past
+ * again (on a phone, a light stretch like the galaxy would otherwise keep baiting it up).
  */
 export class ResolutionGovernor {
   ratio: number;
   private readonly min: number;
+  /** The highest ratio worth trying — lowered whenever a step up had to be taken back. */
+  private ceiling: number;
+  /** The ratio before the last step up, until that step has held for a window. */
+  private raisedFrom: number | null = null;
   private time = 0;
   private frames = 0;
   private calm = 0;
 
   constructor(private readonly max: number) {
     this.ratio = max;
+    this.ceiling = max;
     this.min = Math.min(max, 0.75);
   }
 
@@ -69,12 +97,17 @@ export class ResolutionGovernor {
 
     if (fps < SLOW_FPS && this.ratio > this.min) {
       this.calm = 0;
+      if (this.raisedFrom !== null) this.ceiling = this.raisedFrom;
+      this.raisedFrom = null;
       return this.set(this.ratio * 0.8);
     }
-    if (fps > SMOOTH_FPS && this.ratio < this.max) {
+    // Whatever the last step up was, it has held.
+    this.raisedFrom = null;
+    if (fps > SMOOTH_FPS && this.ratio < this.ceiling) {
       if (++this.calm < CALM_WINDOWS) return null;
       this.calm = 0;
-      return this.set(this.ratio * 1.15);
+      this.raisedFrom = this.ratio;
+      return this.set(Math.min(this.ceiling, this.ratio * 1.15));
     }
     this.calm = 0;
     return null;

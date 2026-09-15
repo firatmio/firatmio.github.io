@@ -81,7 +81,7 @@ export class SignatureScene {
   private readonly trail: TrailField;
   private pixelRatio: number;
   /** Trades resolution for frame rate when frames run slow. */
-  private readonly governor: ResolutionGovernor;
+  private readonly governor: ResolutionGovernor | null;
   /** Idle animation is frozen for visitors who asked for reduced motion. */
   private readonly timeScale: number;
   private frame = 0;
@@ -105,7 +105,7 @@ export class SignatureScene {
   ) {
     const quality = detectQuality();
     this.pixelRatio = quality.pixelRatio;
-    this.governor = new ResolutionGovernor(quality.pixelRatio);
+    this.governor = quality.fixedPixelRatio ? null : new ResolutionGovernor(quality.pixelRatio);
     this.timeScale = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1;
 
     this.renderer = new WebGLRenderer({
@@ -225,7 +225,7 @@ export class SignatureScene {
     const delta = this.lastTime ? Math.min((time - this.lastTime) / 1000, 0.1) : 0;
     this.lastTime = time;
     this.elapsed += delta * this.timeScale;
-    const ratio = this.governor.sample(delta);
+    const ratio = this.governor?.sample(delta) ?? null;
     if (ratio !== null) {
       this.pixelRatio = ratio;
       this.renderer.setPixelRatio(ratio);

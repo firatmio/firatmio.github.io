@@ -55,6 +55,20 @@ export interface ExperienceCallbacks {
   onContextLost?(): void;
   /** The first frame has been drawn. */
   onReady?(): void;
+  /** Twice a second, how the scene is keeping up — for the `?perf` readout. */
+  onStats?(stats: FrameStats): void;
+}
+
+export interface FrameStats {
+  fps: number;
+  /** Mean and worst frame time over the last half second, ms. */
+  frameMs: number;
+  worstMs: number;
+  pixelRatio: number;
+  particles: number;
+  progress: number;
+  postprocessing: boolean;
+  gpu: string;
 }
 
 /** A box on screen, in css px relative to the canvas. */
@@ -89,8 +103,11 @@ export class Experience {
   private readonly coreCenter: Vector3;
   private readonly coreRadius: number;
   private pixelRatio: number;
-  /** Trades resolution for frame rate when frames run slow. */
-  private readonly governor: ResolutionGovernor;
+  /** Trades resolution for frame rate when frames run slow — unless a test pinned it. */
+  private readonly governor: ResolutionGovernor | null;
+  /** `?post=0`, for a test: draw the scene straight to the screen, no effects. */
+  private readonly bypassPost: boolean;
+  private readonly stats = { time: 0, frames: 0, worst: 0, gpu: "" };
   /** Width over height the scene was laid out for — its targets don't follow a resize. */
   readonly layoutAspect: number;
   /** Idle animation is frozen for visitors who asked for reduced motion. */
@@ -124,7 +141,8 @@ export class Experience {
   ) {
     const quality = detectQuality();
     this.pixelRatio = quality.pixelRatio;
-    this.governor = new ResolutionGovernor(quality.pixelRatio);
+    this.governor = quality.fixedPixelRatio ? null : new ResolutionGovernor(quality.pixelRatio);
+    this.bypassPost = new URLSearchParams(window.location.search).get("post") === "0";
     this.timeScale = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1;
 
     this.renderer = new WebGLRenderer({
@@ -418,6 +436,34 @@ export class Experience {
 
   private onContextLost = () => this.callbacks.onContextLost?.();
 
+  /** Tally frame times and hand them to the `?perf` readout twice a second. */
+  private reportStats(delta: number): void {
+    if (!this.callbacks.onStats || delta <= 0) return;
+    const s = this.stats;
+    s.time += delta;
+    s.frames++;
+    s.worst = Math.max(s.worst, delta);
+    if (s.time < 0.5) return;
+    if (!s.gpu) {
+      const gl = this.renderer.getContext();
+      const info = gl.getExtension("WEBGL_debug_renderer_info");
+      s.gpu = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    }
+    this.callbacks.onStats({
+      fps: s.frames / s.time,
+      frameMs: (s.time / s.frames) * 1000,
+      worstMs: s.worst * 1000,
+      pixelRatio: this.pixelRatio,
+      particles: this.field.points.geometry.attributes.position.count,
+      progress: this.progress,
+      postprocessing: !this.bypassPost,
+      gpu: s.gpu,
+    });
+    s.time = 0;
+    s.frames = 0;
+    s.worst = 0;
+  }
+
   private resize = () => {
     const { width, height } = this.viewport();
     this.camera.aspect = width / height;
@@ -433,7 +479,7 @@ export class Experience {
     const delta = this.lastTime ? Math.min((time - this.lastTime) / 1000, 0.1) : 0;
     this.lastTime = time;
     this.elapsed += delta * this.timeScale;
-    const ratio = this.governor.sample(delta);
+    const ratio = this.governor?.sample(delta) ?? null;
     if (ratio !== null) {
       this.pixelRatio = ratio;
       this.renderer.setPixelRatio(ratio);
@@ -503,11 +549,13 @@ export class Experience {
     this.synapses.setEnclosure(enclosure);
     this.projectContacts();
     this.projectMark();
-    this.composer.render(delta);
+    if (this.bypassPost) this.renderer.render(this.scene, this.camera);
+    else this.composer.render(delta);
     if (!this.rendered) {
       this.rendered = true;
       this.callbacks.onReady?.();
     }
+    this.reportStats(delta);
     this.frame = requestAnimationFrame(this.tick);
   };
 }

@@ -42,6 +42,7 @@ export default function SceneCanvas() {
   /** The scene's first frame is drawn — it fades in, the loader out. */
   const [ready, setReady] = useState(false);
   const journeyRef = useRef<HTMLElement>(null);
+  const perfRef = useRef<HTMLPreElement>(null);
   const selectedSlug = selected?.slug ?? null;
 
   useEffect(() => {
@@ -89,6 +90,19 @@ export default function SceneCanvas() {
       onContextLost: () => setFallback(true),
       onReady: () => setReady(true),
     };
+    // `?perf`: a live readout for testing on a real phone — straight to the DOM.
+    if (new URLSearchParams(window.location.search).has("perf")) {
+      callbacks.onStats = (s) => {
+        const readout = perfRef.current;
+        if (!readout) return;
+        readout.hidden = false;
+        readout.textContent = [
+          `${s.fps.toFixed(0)} fps · ${s.frameMs.toFixed(1)} ms (worst ${s.worstMs.toFixed(0)})`,
+          `pr ${s.pixelRatio} · ${Math.round(s.particles / 1000)}k · p ${s.progress.toFixed(3)}${s.postprocessing ? "" : " · no post"}`,
+          s.gpu,
+        ].join("\n");
+      };
+    }
 
     // Load three.js lazily so the HTML shell paints before the WebGL bundle arrives.
     import("@/webgl/Experience").then(async ({ Experience }) => {
@@ -154,6 +168,14 @@ export default function SceneCanvas() {
       return max > 0 ? (window.scrollY / max) * LOOP.end : 0;
     };
     let eased = targetOf();
+    // Style writes make the browser restyle and repaint; the overlays sit still outside
+    // their own stops, so only write what has actually changed.
+    const written = new Map<string, string>();
+    const setStyle = (element: HTMLElement, id: string, name: string, value: string) => {
+      if (written.get(id + name) === value) return;
+      written.set(id + name, value);
+      element.style.setProperty(name, value);
+    };
     // Each jump carries the eased position over the seam, so the frame stays where it was.
     const wrapDown = () => {
       window.scrollTo(0, 0);
@@ -205,19 +227,19 @@ export default function SceneCanvas() {
       if (signatureHint) {
         // Fading as the journey leaves the signature, and back as the loop returns to it.
         const shown = Math.max(1 - smoothstep(0, 0.02, progress), smoothstep(LOOP.end - 0.02, LOOP.end, progress));
-        signatureHint.style.opacity = String(shown);
+        setStyle(signatureHint, "hint", "opacity", shown.toFixed(3));
       }
       const contactSection = contactRef.current;
       if (contactSection) {
         const reveal = contactReveal(progress);
-        contactSection.style.setProperty("--reveal", reveal.toFixed(3));
+        setStyle(contactSection, "contact", "--reveal", reveal.toFixed(3));
         // Hidden entirely while faded out, so its links drop out of the tab order.
-        contactSection.style.visibility = reveal < 0.02 ? "hidden" : "visible";
+        setStyle(contactSection, "contact", "visibility", reveal < 0.02 ? "hidden" : "visible");
       }
       const aboutSection = aboutRef.current;
       if (aboutSection) {
-        aboutSection.style.setProperty("--reveal", aboutReveal(progress).toFixed(3));
-        aboutBeats(progress).forEach((beat, i) => aboutSection.style.setProperty(`--beat-${i}`, beat.toFixed(3)));
+        setStyle(aboutSection, "about", "--reveal", aboutReveal(progress).toFixed(3));
+        aboutBeats(progress).forEach((beat, i) => setStyle(aboutSection, "about", `--beat-${i}`, beat.toFixed(3)));
       }
     };
 
@@ -284,6 +306,12 @@ export default function SceneCanvas() {
       />
       <LoadingMark done={ready} />
       <JourneyMap ref={journeyRef} />
+      <pre
+        ref={perfRef}
+        hidden
+        aria-hidden
+        className="pointer-events-none fixed top-14 left-4 z-40 rounded bg-black/70 px-2 py-1 font-mono text-[11px] leading-snug text-ink"
+      />
 
       {/* The scroll track: its height is the length of the journey, loop included. */}
       <div
