@@ -29,4 +29,4 @@ Open to internships and freelance work on developer tooling, backend systems and
 
 ## Optional
 
-- [Agent resource manifest](https://firattunaarslan.me/.well-known/ard.json): ARD manifest listing the aletheia MCP server.
+- [Agent resource manifest](https://www.firattunaarslan.me/.well-known/ard.json): ARD manifest listing the aletheia MCP server.
