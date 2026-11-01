@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+.vercel
+
+# Design tooling scratch (screenshots, previews, inspector reports)
+.taste-skill
 
 # Editor directories and files
 .vscode/*

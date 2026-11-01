@@ -1,111 +1,1119 @@
+@import "tailwindcss" source(none);
+
+/* Self-hosted Schibsted Grotesk (SIL OFL, see /fonts/OFL.txt), cut down to the weights 400–700 and the
+   characters this site uses: Latin, Turkish letters, punctuation and arrows. Preloaded in index.html. */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  src: url("/fonts/schibsted-grotesk.woff2") format("woff2");
+}
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --bg: #fafafa;
+  --tile: #ececea;
+  --tile-hover: #e2e2df;
+  --ink: #0d0d0d;
+  --soft: #62625e;
+  --chip: #dcdcd8;
+  --dark: #0d0d0d;
+  --dark-hover: #1c1c1c;
+  --on-dark: #fafafa;
+  --on-dark-soft: #b5b5b0;
+  --chip-dark: #262626;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --gap: 8px;
+  --radius: 14px;
+  --ease-sheet: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --font: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --bg: #0b0b0b;
+    --tile: #181817;
+    --tile-hover: #222220;
+    --ink: #f3f3ef;
+    --soft: #a3a39c;
+    --chip: #2a2a28;
+    --dark: #f3f3ef;
+    --dark-hover: #e6e6e1;
+    --on-dark: #0d0d0d;
+    --on-dark-soft: #55554f;
+    --chip-dark: #dcdcd6;
+    color-scheme: dark;
   }
 }
 
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+* {
   box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+html,
+body {
   margin: 0;
+  min-height: 100%;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
-code {
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 500;
+  text-wrap: balance;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* ---------- Grid of tiles ---------- */
+
+.grid {
+  height: 100dvh;
+  padding: var(--gap);
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.split {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--gap);
+  min-height: 0;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(18px, 2vw, 28px);
+  background: var(--tile);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: background-color 0.25s ease;
+}
+
+.tile:hover {
+  background: var(--tile-hover);
+}
+
+.tile:has(.tile-btn:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* The whole tile is the button's hit area. */
+.tile-btn {
+  outline: none;
+}
+
+.tile-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.tile h2 {
+  font-size: clamp(26px, 2.6vw, 44px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
+}
+
+.split .tile h2 {
+  font-size: clamp(24px, 2.2vw, 36px);
+}
+
+.tile-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  color: var(--soft);
   font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s var(--ease-out);
+}
+
+.tile:hover .tile-top,
+.tile:has(.tile-btn:focus-visible) .tile-top,
+.tile-top.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+.tile-arrow {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  font-size: 22px;
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s var(--ease-out);
+}
+
+.tile:hover .tile-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.tile-me {
+  grid-row: span 2;
+  background: var(--dark);
+  color: var(--on-dark);
+}
+
+.tile-me:hover {
+  background: var(--dark-hover);
+}
+
+.tile-me .tile-top {
+  color: var(--on-dark-soft);
+}
+
+.tile-me h1 {
+  font-size: clamp(40px, 4.6vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.tile-lede {
+  margin: 18px 0 0;
+  max-width: 28em;
+  font-size: 18px;
+  color: var(--on-dark-soft);
+}
+
+.tile-contact {
+  grid-column: span 2;
+}
+
+/* Tiles that carry a painting; a scrim at the foot keeps the title readable. */
+.tile-art,
+.tile-art:hover {
+  background: transparent;
+  color: #fafafa;
+}
+
+.tile-art-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--art-ground);
+}
+
+.tile-art-bg picture,
+.sheet-art picture {
+  display: contents;
+}
+
+.tile-art-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--art-pos);
+}
+
+.tile-art-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(10 12 8 / 0.72), rgb(10 12 8 / 0) 55%);
+}
+
+
+/* The painting sits behind the content inside the tile, so the tile button's hit area still covers the whole tile. */
+.tile-art {
+  isolation: isolate;
+}
+
+.tile-art-bg {
+  z-index: -1;
+}
+
+.tile-art .tile-top {
+  color: #fafafa;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
+}
+
+/* Logos on the stack tile: quiet at rest, in their own colours on hover. */
+.tile-stack-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.tile-logos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 50%;
+}
+
+.tile-logos svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--soft);
+  transition:
+    fill 0.3s ease,
+    transform 0.35s var(--ease-out);
+}
+
+.tile-stack:hover .tile-logos svg {
+  fill: var(--brand);
+}
+
+.tile-stack:hover .tile-logos svg:nth-child(odd) {
+  transform: translateY(-3px);
+}
+
+/* ---------- Sheet: a tile grown to the whole screen, in the tile's own colours ---------- */
+
+.sheet {
+  --s-bg: var(--tile);
+  --s-ink: var(--ink);
+  --s-soft: var(--soft);
+  --s-chip: var(--chip);
+  --s-button: var(--ink);
+  --s-button-ink: var(--tile);
+  --s-raise: var(--bg);
+
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  background: var(--s-bg);
+  color: var(--s-ink);
+  clip-path: inset(var(--t, 0) var(--r, 0) var(--b, 0) var(--l, 0) round var(--radius));
+  transition: clip-path 0.7s var(--ease-sheet);
+}
+
+.sheet::-webkit-scrollbar {
+  display: none;
+}
+
+.sheet.is-dark {
+  --s-bg: var(--dark);
+  --s-ink: var(--on-dark);
+  --s-soft: var(--on-dark-soft);
+  --s-chip: var(--chip-dark);
+  --s-button: var(--on-dark);
+  --s-button-ink: var(--dark);
+  --s-raise: var(--dark-hover);
+}
+
+/* aletheia: the painting behind its tile fills the page too, under an even dark veil so the text stays readable. */
+.sheet.is-art {
+  --s-bg: #1d2219;
+  --s-raise: rgb(10 12 8 / 0.32);
+  --s-ink: #fafafa;
+  --s-soft: #d8d8d2;
+  --s-chip: rgb(255 255 255 / 0.16);
+  --s-button: #fafafa;
+  --s-button-ink: #0d0d0d;
+  isolation: isolate;
+}
+
+/* The picture's box travels with the clip: tile rectangle when closed, the whole screen when open.
+   Same object-fit and position as the tile, so the crop changes continuously instead of snapping. */
+.sheet-art {
+  position: fixed;
+  z-index: -1;
+  top: var(--t, 0);
+  right: var(--r, 0);
+  bottom: var(--b, 0);
+  left: var(--l, 0);
+  overflow: hidden;
+  background: var(--art-thumb) var(--art-pos) / cover no-repeat, var(--art-ground);
+  transition:
+    top 0.7s var(--ease-sheet),
+    right 0.7s var(--ease-sheet),
+    bottom 0.7s var(--ease-sheet),
+    left 0.7s var(--ease-sheet);
+}
+
+.is-full .sheet-art {
+  inset: 0;
+}
+
+.sheet-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--art-pos);
+}
+
+/* The tile's foot scrim fades out as the page's even veil fades in, and back on close. */
+.sheet-art::before,
+.sheet-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.7s var(--ease-sheet);
+}
+
+.sheet-art::before {
+  background: linear-gradient(to top, rgb(10 12 8 / 0.72), rgb(10 12 8 / 0) 55%);
+}
+
+.sheet-art::after {
+  background: rgb(10 12 8 / 0.62);
+  opacity: 0;
+}
+
+.is-full .sheet-art::before {
+  opacity: 0;
+}
+
+.is-full .sheet-art::after {
+  opacity: 1;
+}
+
+.repo-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+  color: var(--s-soft);
+}
+
+.repo-stats li {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--s-chip);
+}
+
+.repo-stats b {
+  color: var(--s-ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On a painted page, raised surfaces frost the painting behind them. */
+.is-art .side-item,
+.is-art .stat,
+.is-art .rule {
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.go-quiet {
+  background: var(--s-chip);
+  color: var(--s-ink);
+}
+
+.art-credit {
+  margin: 36px 0 0;
+  font-size: 14px;
+  color: var(--s-soft);
+  max-width: 34em;
+}
+
+.art-credit a {
+  text-underline-offset: 2px;
+}
+
+.sheet.is-full {
+  clip-path: inset(0 0 0 0 round 0);
+}
+
+.sheet[hidden] {
+  display: none;
+}
+
+.sheet-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 96px);
+  align-content: center;
+  padding: clamp(24px, 5vw, 80px);
+}
+
+.sheet:not(.is-full) .sheet-body {
+  opacity: 0;
+}
+
+/* Runs on first open and again whenever the content is swapped, since each body is keyed by its tile.
+   Fill is backwards only: an animation that stays applied after it ends makes the body a backdrop root,
+   and the cards' backdrop blur would then see nothing behind them. */
+.is-full .sheet-body {
+  animation: sheet-in 0.5s var(--ease-out) 0.35s backwards;
+}
+
+/* Side projects' cards blur the painting, and any animating ancestor would hide that blur until it ends.
+   So here the parts arrive on their own instead of the whole body, the cards one after another. */
+.is-full .sheet-side-projects {
+  animation: none;
+}
+
+.is-full .sheet-side-projects :is(.side-head, .side-item, .art-credit) {
+  animation: sheet-in 0.5s var(--ease-out) calc(0.35s + var(--i, 0) * 50ms) backwards;
+}
+
+.sheet-side-projects .art-credit {
+  --i: 8;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sheet h2 {
+  font-size: clamp(44px, 6vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  margin-bottom: 14px;
+  overflow-wrap: break-word;
+}
+
+.sheet-meta {
+  margin: 0;
+  font-size: 18px;
+  color: var(--s-soft);
+}
+
+.sheet-lede {
+  margin: 0 0 22px;
+  font-size: 21px;
+  max-width: 30em;
+}
+
+.points {
+  margin: 0 0 24px;
+  padding-left: 18px;
+  font-size: 18px;
+  max-width: 34em;
+}
+
+.points li {
+  margin: 6px 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  background: var(--s-chip);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.links {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+.links a {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+
+.links a span {
+  color: var(--s-soft);
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+.links a:hover {
+  opacity: 0.7;
+}
+
+.go {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  background: var(--s-button);
+  color: var(--s-button-ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.14s var(--ease-out);
+}
+
+.go:hover {
+  transform: translateY(-2px);
+}
+
+.go:active {
+  transform: scale(0.97);
+}
+
+.close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 16px;
+  border-radius: 999px;
+  background: var(--s-button);
+  color: var(--s-button-ink);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.is-full .close {
+  opacity: 1;
+  transition-delay: 0.35s;
+}
+
+.close kbd {
+  font: inherit;
+  font-size: 13px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  /* Drawn from the button's own colours so it shows on every sheet, the painted one included. */
+  background: color-mix(in srgb, var(--s-button-ink) 12%, transparent);
+  color: var(--s-button-ink);
+}
+
+/* Stack sheet: logos in groups; the one in focus shows where it was used. */
+.sheet-stack,
+.sheet-side-projects {
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+
+.stack-head,
+.side-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.used-in {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  min-height: 3.2em;
+}
+
+.used-name {
+  color: var(--s-ink);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.used-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--s-ink);
+}
+
+.stack-groups {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+  margin-top: clamp(32px, 6vh, 72px);
+}
+
+.stack-group h3 {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--s-soft);
+  margin-bottom: 12px;
+}
+
+.stack-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: clamp(20px, 1.8vw, 26px);
+  letter-spacing: -0.02em;
+  transition: background-color 0.2s ease;
+}
+
+.tool-logo {
+  flex: none;
+  width: clamp(32px, 3vw, 44px);
+  height: clamp(32px, 3vw, 44px);
+  fill: var(--s-soft);
+  transition:
+    fill 0.3s ease,
+    transform 0.4s var(--ease-out);
+}
+
+.tool[aria-pressed="true"] {
+  background: var(--s-chip);
+}
+
+.tool[aria-pressed="true"] .tool-logo {
+  fill: var(--brand);
+  transform: scale(1.12) rotate(-6deg);
+}
+
+/* Side projects sheet */
+.side-list {
+  list-style: none;
+  margin: clamp(32px, 6vh, 72px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 8px;
+}
+
+.side-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  height: 100%;
+  padding: 20px 22px;
+  border-radius: 12px;
+  background: var(--s-raise);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.side-item:hover {
+  transform: translateY(-3px);
+}
+
+/* The repository link covers the card; the homepage link sits above it. */
+.side-main {
+  display: grid;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.side-main::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.side-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.side-kind,
+.side-stack {
+  color: var(--s-soft);
+  font-size: 15px;
+}
+
+.side-summary {
+  margin: 8px 0 0;
+}
+
+.side-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.side-home {
+  position: relative;
+  z-index: 1;
+  font-size: 15px;
+  text-underline-offset: 3px;
+}
+
+/* ---------- About: one scrolling page ---------- */
+
+.sheet-about {
+  grid-template-columns: 1fr 1.15fr;
+  align-content: start;
+  align-items: start;
+}
+
+.about-intro {
+  position: sticky;
+  top: clamp(24px, 5vw, 80px);
+}
+
+.about-intro .sheet-meta {
+  margin-bottom: 28px;
+}
+
+.about-intro .chips {
+  margin-top: 28px;
+}
+
+.about-flow {
+  display: grid;
+  gap: clamp(56px, 9vh, 96px);
+  padding-bottom: 20vh;
+}
+
+.about-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--s-soft);
+  margin-bottom: 14px;
+}
+
+.about-sub {
+  margin: 20px 0 10px;
+  font-size: 15px;
+  color: var(--s-soft);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.stat {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--s-raise);
+}
+
+.stat b {
+  display: block;
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span,
+.recent time {
+  color: var(--s-soft);
+  font-size: 14px;
+}
+
+.recent,
+.rules,
+.qa {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.recent a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--s-raise);
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-out);
+}
+
+.recent a:hover {
+  transform: translateX(4px);
+}
+
+.recent-what {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-what span {
+  color: var(--s-soft);
+}
+
+.rules {
+  gap: 8px;
+}
+
+.rule {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 20px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: var(--s-raise);
+}
+
+.rule h4 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.rule a {
+  align-self: center;
+  color: var(--s-soft);
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.rule a:hover {
+  color: var(--s-ink);
+}
+
+.rule p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--s-soft);
+  max-width: 34em;
+}
+
+.q button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  transition: background-color 0.2s ease;
+}
+
+.q button:hover,
+.q.is-open button {
+  background: var(--s-raise);
+}
+
+.q button span {
+  color: var(--s-soft);
+  transition: transform 0.3s var(--ease-out);
+}
+
+.q.is-open button span {
+  transform: rotate(45deg);
+}
+
+.q-more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--ease-out);
+}
+
+.q-more > div {
+  overflow: hidden;
+}
+
+.q.is-open .q-more {
+  grid-template-rows: 1fr;
+}
+
+.q-more p {
+  margin: 0;
+  padding: 4px 18px 18px;
+  max-width: 34em;
+  font-size: 18px;
+  color: var(--s-soft);
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* ---------- Tablet and phone ---------- */
+
+@media (max-width: 1024px) {
+  .grid {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    grid-auto-rows: clamp(168px, 24vw, 220px);
+  }
+
+  .split {
+    display: contents;
+  }
+
+  .tile-me {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .stack-groups {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .tile-me {
+    grid-row: span 3;
+  }
+
+  .tile h2,
+  .split .tile h2 {
+    font-size: 24px;
+  }
+
+  .tile-stack-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tile-logos {
+    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .tile-top {
+    opacity: 1;
+    transform: none;
+    font-size: 14px;
+  }
+
+  .tile-top span + span {
+    display: none;
+  }
+
+  .tile-me .tile-top span + span {
+    display: inline;
+  }
+
+  .sheet-body {
+    grid-template-columns: 1fr;
+    align-content: start;
+    padding-top: 80px;
+  }
+
+  .stack-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .about-intro {
+    position: static;
+  }
+
+  .stat b {
+    font-size: 26px;
+  }
+
+  .stat {
+    padding: 14px;
+  }
+
+  .used-in {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .close kbd {
+    display: none;
+  }
+}
+
+@media (hover: none) {
+  .tile-top {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet-body,
+  .close,
+  .tile-top,
+  .tile-arrow,
+  .tile-logos svg,
+  .tool-logo,
+  .side-item,
+  .q-more,
+  .recent a,
+  .sheet-art,
+  .sheet-art::before,
+  .sheet-art::after {
+    transition: none;
+  }
+
+  .is-full .sheet-body,
+  .is-full .sheet-side-projects :is(.side-head, .side-item, .art-credit) {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+*:-s {
+  
 }

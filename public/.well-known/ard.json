@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "identifier": "urn:air:firattunaarslan.me:mcp:aletheia",
+      "displayName": "Aletheia",
+      "type": "application/mcp-server-card+json",
+      "description": "Project memory for coding agents whose memories carry code evidence, re-checked on every recall.",
+      "representativeQueries": [
+        "memory for coding agents that checks itself against the code",
+        "MCP server that keeps stale facts out of an agent's context",
+        "project memory with code evidence for AI coding assistants"
+      ],
+      "capabilities": ["remember", "recall", "verify", "get"],
+      "tags": ["mcp", "memory", "coding-agents", "go"],
+      "version": "0.1.1",
+      "updatedAt": "2026-10-23T23:07:15Z",
+      "data": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+        "name": "io.github.firatmio/aletheia",
+        "title": "Aletheia",
+        "description": "Project memory for coding agents whose memories carry code evidence, re-checked on every recall.",
+        "version": "0.1.1",
+        "websiteUrl": "https://aletheia.firattunaarslan.me",
+        "repository": {
+          "url": "https://github.com/firatmio/aletheia",
+          "source": "github"
+        },
+        "packages": [
+          {
+            "registryType": "npm",
+            "identifier": "@firatmio/aletheia",
+            "version": "0.1.1",
+            "transport": { "type": "stdio" },
+            "packageArguments": [{ "type": "positional", "value": "serve" }]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Fırat Tuna Arslan
+
+> AI engineering student at Trabzon University and systems developer. Builds developer tools and AI pipelines in Go, Rust and Python: verified memory for coding agents, security for MCP servers, and clinical ECG models.
+
+Open to internships and freelance work on developer tooling, backend systems and applied ML. Contact: firattunaarslan@gmail.com.
+
+## Projects
+
+- [aletheia](https://github.com/firatmio/aletheia): Memory for coding agents that checks itself against your code. Every memory carries evidence and is re-checked on every recall. Go, MCP server, listed in the MCP Registry as io.github.firatmio/aletheia. Website: https://aletheia.firattunaarslan.me
+- [mcp-audit-proxy](https://github.com/firatmio/mcp-audit-proxy): A package-lock and flight recorder for MCP tool descriptions. Pins every tool, alarms on changes, logs every call and flags prompt injection. Local-only Go binary.
+- [cardioguard-mg](https://github.com/firatmio/cardioguard-mg): Real-time Holter ECG monitoring with a CNN, a rule engine and MedGemma. Python, TypeScript, Next.js, React Native.
+
+## Side projects
+
+- [linkup](https://github.com/firatmio/linkup): Chat and file transfer between devices on the same local network. Rust, Tauri, React.
+- [Ahar](https://github.com/firatmio/ahar-releases): A desktop app for writing documents together as a team.
+- [mbpp-tr](https://github.com/firatmio/mbpp-tr): A Turkish translation of the MBPP benchmark, with LoRA fine-tunes of Qwen3-1.7B reported as a negative result. Dataset: https://huggingface.co/datasets/firatmio/mbpp-tr
+- [db-viewer](https://github.com/firatmio/db-viewer): A database viewing and management tool. Tauri, TypeScript.
+- [go-auth](https://github.com/firatmio/go-auth): An extensible authentication and authorization system in Go.
+- [pywraps](https://github.com/firatmio/pywraps): Retry, timeout, debounce and background decorators for Python with zero dependencies.
+- [reveal-animation](https://github.com/firatmio/reveal-animation): A React component that plays CSS animations as elements scroll into view.
+
+## Elsewhere
+
+- [GitHub](https://github.com/firatmio)
+- [Hugging Face](https://huggingface.co/firatmio)
+- [LinkedIn](https://linkedin.com/in/firattunaarslan)
+- [X](https://x.com/firatmio)
+
+## Optional
+
+- [Agent resource manifest](https://firattunaarslan.me/.well-known/ard.json): ARD manifest listing the aletheia MCP server.
