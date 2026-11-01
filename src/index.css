@@ -815,6 +815,56 @@ button {
 .about-intro {
   position: sticky;
   top: clamp(24px, 5vw, 80px);
+  /* Fills the screen height so the GitHub numbers sit at its bottom-left corner. */
+  min-height: calc(100svh - 2 * clamp(24px, 5vw, 80px));
+  display: flex;
+  flex-direction: column;
+}
+
+.gh-profile {
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+.gh-profile .about-label a {
+  text-decoration: none;
+}
+
+.gh-profile .about-label a:hover {
+  color: var(--s-ink);
+}
+
+.gh-profile dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0;
+}
+
+.gh-profile dt {
+  order: 1;
+  font-size: 14px;
+  color: var(--s-soft);
+}
+
+.gh-profile dl > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.gh-profile dd {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.gh-langs {
+  margin: 14px 0 0;
+  font-size: 15px;
+  color: var(--s-soft);
 }
 
 .about-intro .sheet-meta {
@@ -846,7 +896,7 @@ button {
 
 .stat-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
@@ -1070,6 +1120,7 @@ button {
 
   .about-intro {
     position: static;
+    min-height: 0;
   }
 
   .stat b {

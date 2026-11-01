@@ -111,7 +111,18 @@ export const portfolioData = {
     },
   ],
   // Shown when the GitHub API cannot be reached.
-  githubFallback: { stars: 16, release: "v0.1.1", repos: 25 },
+  githubFallback: {
+    stars: 16,
+    release: "v0.1.1",
+    profile: {
+      stars: 92,
+      repos: 25,
+      followers: 25,
+      forks: 1,
+      since: 2021,
+      languages: ["TypeScript", "Python", "Go", "Jupyter Notebook"],
+    },
+  },
   // Paintings behind some tiles, keyed by tile id. The page that opens from the tile uses the same picture.
   artworks: {
     aletheia: {

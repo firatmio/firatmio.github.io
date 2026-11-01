@@ -258,8 +258,27 @@ const ago = (iso: string) => {
 interface GitHubNow {
   stars: number
   release: string
-  repos: number
+  profile: GitHubProfile
   recent: { name: string; description: string; pushed: string }[]
+}
+
+interface GitHubProfile {
+  stars: number
+  repos: number
+  followers: number
+  forks: number
+  since: number
+  languages: string[]
+}
+
+type Repo = {
+  name: string
+  fork: boolean
+  description: string | null
+  pushed_at: string
+  stargazers_count: number
+  forks_count: number
+  language: string | null
 }
 
 let githubCache: Promise<GitHubNow> | null = null
@@ -271,16 +290,25 @@ function loadGitHub(): Promise<GitHubNow> {
     get("repos/firatmio/aletheia"),
     get("repos/firatmio/aletheia/releases/latest").catch(() => null),
     get("users/firatmio"),
-    get("users/firatmio/repos?sort=pushed&per_page=12"),
-  ]).then(([repo, rel, user, repos]) => ({
-    stars: repo.stargazers_count,
-    release: rel?.tag_name ?? data.githubFallback.release,
-    repos: user.public_repos,
-    recent: (repos as { name: string; fork: boolean; description: string | null; pushed_at: string }[])
-      .filter((r) => !r.fork && !r.name.startsWith("."))
-      .slice(0, 5)
-      .map((r) => ({ name: r.name, description: r.description ?? "", pushed: r.pushed_at })),
-  }))
+    get("users/firatmio/repos?sort=pushed&per_page=100"),
+  ]).then(([repo, rel, user, all]: [{ stargazers_count: number }, { tag_name: string } | null, { public_repos: number; followers: number; created_at: string }, Repo[]]) => {
+    const own = all.filter((r) => !r.fork && !r.name.startsWith("."))
+    const byLanguage = new Map<string, number>()
+    for (const r of own) if (r.language) byLanguage.set(r.language, (byLanguage.get(r.language) ?? 0) + 1)
+    return {
+      stars: repo.stargazers_count,
+      release: rel?.tag_name ?? data.githubFallback.release,
+      profile: {
+        stars: own.reduce((n, r) => n + r.stargazers_count, 0),
+        repos: user.public_repos,
+        followers: user.followers,
+        forks: own.reduce((n, r) => n + r.forks_count, 0),
+        since: new Date(user.created_at).getFullYear(),
+        languages: [...byLanguage].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([l]) => l),
+      },
+      recent: own.slice(0, 5).map((r) => ({ name: r.name, description: r.description ?? "", pushed: r.pushed_at })),
+    }
+  })
   return githubCache
 }
 
@@ -297,6 +325,7 @@ function AboutSheet() {
   }, [])
 
   const stats = gh ?? (failed ? { ...data.githubFallback, recent: [] } : null)
+  const profile = stats?.profile
 
   return (
     <>
@@ -313,6 +342,28 @@ function AboutSheet() {
           <li>Go · Rust · Python</li>
           <li>Open to internships and freelance</li>
         </ul>
+        <section className="gh-profile" aria-labelledby="gh-title">
+          <h3 id="gh-title" className="about-label">
+            <ExtLink href="https://github.com/firatmio">GitHub · firatmio</ExtLink>
+          </h3>
+          <dl>
+            {(
+              [
+                ["stars", profile?.stars],
+                ["repositories", profile?.repos],
+                ["followers", profile?.followers],
+                ["forks", profile?.forks],
+                ["on GitHub since", profile?.since],
+              ] as const
+            ).map(([label, n]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{n === undefined ? "…" : label === "on GitHub since" ? n : n.toLocaleString("en")}</dd>
+              </div>
+            ))}
+          </dl>
+          {profile && <p className="gh-langs">Mostly {profile.languages.join(", ")}</p>}
+        </section>
       </div>
 
       <div className="about-flow">
@@ -328,10 +379,6 @@ function AboutSheet() {
             <div className="stat">
               <b>{stats?.release ?? "…"}</b>
               <span>latest aletheia release</span>
-            </div>
-            <div className="stat">
-              <b>{stats?.repos ?? "…"}</b>
-              <span>public repositories</span>
             </div>
           </div>
           {gh && gh.recent.length > 0 && (
