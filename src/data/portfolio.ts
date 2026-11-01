@@ -24,7 +24,7 @@ export interface SideProject {
 }
 
 export interface Artwork {
-  /** Path without extension: <src>-480/960/1920.avif and .webp exist, and <src>.jpg as the fallback. */
+  /** Path without extension: <src>-480/960/1280/1920.avif and .webp exist, and <src>.jpg as the fallback. */
   src: string
   width: number
   height: number
@@ -32,6 +32,11 @@ export interface Artwork {
   position: string
   /** Colour shown before the picture loads. */
   ground: string
+  /**
+   * How wide the picture is really drawn in its tile, for picking a file. Only needed when the painting is
+   * much wider than the tile, since object-fit: cover then scales it past the tile's width.
+   */
+  tileSizes?: string
   title: string
   artist: string
   source: string
@@ -115,6 +120,8 @@ export const portfolioData = {
       height: 837,
       position: "62% 40%",
       ground: "#2f3a27",
+      // 2.3:1 in a tall tile: drawn at about tile height × 2.3 (half the screen high on desktop).
+      tileSizes: "(max-width: 760px) 400px, (max-width: 1024px) 56vw, 116vh",
       title: "The Sacred Grove, Beloved of the Arts and the Muses",
       artist: "Pierre Puvis de Chavannes",
       source: "Art Institute of Chicago",

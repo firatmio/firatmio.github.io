@@ -81,7 +81,7 @@ function ArtCredit({ id }: { id: string }) {
   )
 }
 
-const ART_WIDTHS = [480, 960, 1920]
+const ART_WIDTHS = [480, 960, 1280, 1920]
 // A tile is a quarter of the screen on desktop and half of it below 1024px.
 const TILE_SIZES = "(max-width: 1024px) 50vw, 25vw"
 
@@ -674,7 +674,7 @@ export default function App() {
           const p = byId[id]
           return (
             <article key={id} className={data.artworks[id] ? "tile tile-art" : "tile"}>
-              <ArtLayer id={id} className="tile-art-bg" sizes={TILE_SIZES} />
+              <ArtLayer id={id} className="tile-art-bg" sizes={data.artworks[id]?.tileSizes ?? TILE_SIZES} />
               <p className="tile-top">
                 <span>{p.kind}</span>
                 <span>{p.year}</span>
@@ -700,7 +700,7 @@ export default function App() {
             </div>
           </article>
           <article className="tile tile-art">
-            <ArtLayer id="side-projects" className="tile-art-bg" sizes={TILE_SIZES} />
+            <ArtLayer id="side-projects" className="tile-art-bg" sizes={data.artworks["side-projects"].tileSizes ?? TILE_SIZES} />
             <p className="tile-top">
               <span>{data.sideProjects.length} projects</span>
             </p>
