@@ -85,29 +85,74 @@ const ART_WIDTHS = [480, 960, 1920]
 // A tile is a quarter of the screen on desktop and half of it below 1024px.
 const TILE_SIZES = "(max-width: 1024px) 50vw, 25vw"
 
+const artSrcSet = (src: string, ext: string) => ART_WIDTHS.map((w) => `${src}-${w}.${ext} ${w}w`).join(", ")
+
+// The small file the tile already loaded (480 or 960 wide, by screen density), shown under the
+// large one on the page until that has arrived.
+const artThumb = (src: string) =>
+  `image-set(${["avif", "webp"]
+    .map((ext) => `url("${src}-480.${ext}") type("image/${ext}") 1x, url("${src}-960.${ext}") type("image/${ext}") 2x`)
+    .join(", ")})`
+
+// Starts fetching and decoding a page's full-screen painting before the tile is clicked, from hover or
+// focus. A detached <picture> makes the browser pick the same single file the page will ask for.
+const preloaded = new Map<string, HTMLImageElement>()
+function preloadArt(id: string) {
+  const art = data.artworks[id]
+  if (!art || preloaded.has(id)) return
+  const picture = document.createElement("picture")
+  for (const ext of ["avif", "webp"]) {
+    const source = document.createElement("source")
+    source.type = `image/${ext}`
+    source.srcset = artSrcSet(art.src, ext)
+    source.sizes = "100vw"
+    picture.append(source)
+  }
+  const img = new Image()
+  picture.append(img)
+  img.src = `${art.src}.jpg`
+  img.decode().catch(() => {})
+  preloaded.set(id, img)
+}
+
 // The painting layer behind a tile, or behind the page that grows out of it.
 // `sizes` tells the browser how wide it is drawn, so a tile loads a small file and a page a large one.
-function ArtLayer({ id, className, sizes }: { id: string; className: string; sizes: string }) {
+// With `reveal`, the image stays hidden until it is fully loaded and decoded, so a large file that is
+// still arriving never paints half-drawn over the placeholder.
+function ArtLayer({ id, className, sizes, reveal }: { id: string; className: string; sizes: string; reveal?: boolean }) {
   const art = data.artworks[id]
+  const [ready, setReady] = useState(!reveal)
+  const img = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    const el = img.current
+    if (!reveal || !el) return
+    let live = true
+    const show = () => live && setReady(true)
+    // decode() resolves once the chosen source is loaded and decoded, cached or not.
+    el.decode().then(show, () => el.addEventListener("load", show, { once: true }))
+    return () => {
+      live = false
+    }
+  }, [reveal])
+
   if (!art) return null
-  const srcSet = (ext: string) => ART_WIDTHS.map((w) => `${art.src}-${w}.${ext} ${w}w`).join(", ")
   return (
     <div
-      className={className}
+      className={`${className}${ready ? " is-ready" : ""}`}
       aria-hidden="true"
       style={
         {
           "--art-pos": art.position,
           "--art-ground": art.ground,
-          // The small file the tile already loaded, shown under the large one until it arrives.
-          "--art-thumb": `image-set(url("${art.src}-480.avif") type("image/avif"), url("${art.src}-480.webp") type("image/webp"))`,
+          "--art-thumb": artThumb(art.src),
         } as React.CSSProperties
       }
     >
       <picture>
-        <source type="image/avif" srcSet={srcSet("avif")} sizes={sizes} />
-        <source type="image/webp" srcSet={srcSet("webp")} sizes={sizes} />
-        <img src={`${art.src}.jpg`} alt="" width={art.width} height={art.height} decoding="async" />
+        <source type="image/avif" srcSet={artSrcSet(art.src, "avif")} sizes={sizes} />
+        <source type="image/webp" srcSet={artSrcSet(art.src, "webp")} sizes={sizes} />
+        <img ref={img} src={`${art.src}.jpg`} alt="" width={art.width} height={art.height} decoding="async" />
       </picture>
     </div>
   )
@@ -593,7 +638,14 @@ export default function App() {
   }
 
   const tileButton = (id: TileId, label: string) => (
-    <button ref={tileRef(id)} className="tile-btn" onClick={() => open(id)}>
+    <button
+      ref={tileRef(id)}
+      className="tile-btn"
+      onClick={() => open(id)}
+      onPointerEnter={() => preloadArt(id)}
+      onPointerDown={() => preloadArt(id)}
+      onFocus={() => preloadArt(id)}
+    >
       {label}
     </button>
   )
@@ -676,7 +728,7 @@ export default function App() {
         aria-labelledby="sheet-title"
       >
         {/* Grows from the tile's rectangle with the same crop, so the picture never jumps between the two. */}
-        {openId && <ArtLayer key={`art-${openId}`} id={openId} className="sheet-art" sizes="100vw" />}
+        {openId && <ArtLayer key={`art-${openId}`} id={openId} className="sheet-art" sizes="100vw" reveal />}
         {openId && (
           <div key={openId} className={`sheet-body sheet-${openId}`}>
             {sheetFor(openId, open)}

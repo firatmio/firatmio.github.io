@@ -385,6 +385,13 @@ button {
   height: 100%;
   object-fit: cover;
   object-position: var(--art-pos);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+/* Shown only once fully loaded and decoded; until then the tile's own small file shows underneath. */
+.sheet-art.is-ready img {
+  opacity: 1;
 }
 
 /* The tile's foot scrim fades out as the page's even veil fades in, and back on close. */

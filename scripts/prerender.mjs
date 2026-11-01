@@ -20,13 +20,16 @@ if (link) {
 }
 
 // The prerendered page is complete without JavaScript, so the bundle is fetched right after the first paint
-// instead of competing with the document and the font for the first one.
+// instead of competing with the document and the font for the first one. Animation frames do not run in
+// a page that is not being drawn (a background tab, some embedded browsers), so a timer loads it anyway.
 const script = html.match(/<script type="module" crossorigin src="(\/assets\/[^"]+\.js)"><\/script>/)
 if (script) {
+  const src = JSON.stringify(script[1])
   html = html.replace(
     script[0],
     () =>
-      `<script type="module">requestAnimationFrame(() => setTimeout(() => import(${JSON.stringify(script[1])})))</script>`,
+      `<script type="module">let started;const load=()=>started||(started=import(${src}));` +
+      `requestAnimationFrame(()=>setTimeout(load));setTimeout(load,300)</script>`,
   )
 }
 
